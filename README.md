@@ -3,10 +3,17 @@
 Nautilus extension that makes changing folders icons easy!
 
 
+
+
 ## Screenshots
 
 <div align="center"><img src="screenshots/screenshot1.png" alt="Preview" /></div>
 
+## Shortcuts
+
+- `Escape` To close the window
+- `Return` To select the new folder icon
+- `<Shift><Ctrl>S` To open the folder icon selector on the current folder
 
 
 ## Requirements:
