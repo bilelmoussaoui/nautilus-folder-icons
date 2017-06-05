@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <translation type="gettext">nautilus-folder-icons</translation>
+  <id>nautilus-folder-icons</id>
+  <extends>org.gnome.nautilus</extends>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <name>Nautilus Folder Icons</name>
+  <summary>Nautilus extension to change folders icons</summary>
+  <description>
+    <p>Nautilus extension that makes it easier for you to change folders icons</p>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/bil-elmoussaoui/nautilus-folder-icons/master/screenshots/screenshot1.png</image>
+    </screenshot>
+  </screenshots>
+  <developer_name>Bilal Elmoussaoui</developer_name>
+  <url type="homepage">https://github.com/bil-elmoussaoui/nautilus-folder-icons</url>
+  <url type="bugtracker">https://github.com/bil-elmoussaoui/nautilus-folder-icons/issues</url>
+  ​</component>
