@@ -26,38 +26,55 @@ from urlparse import urlparse
 from gi import require_version
 require_version("Gtk", "3.0")
 require_version('Nautilus', '3.0')
-from gi.repository import Gtk, Nautilus, GObject
+from gi.repository import Gtk, Nautilus, GObject, Gio
 
 textdomain('nautilus-folder-icons')
 
 
 def get_default_icon(directory):
-    attributes = ["metadata::custom-icon-name", "standard::icon"]
+    """Use Gio to get the default icon."""
+    attributes = ["metadata::custom-icon",
+                  "metadata::custom-icon-name",
+                  "standard::icon"]
+
+    gfile = Gio.File.new_for_path(directory)
+    ginfo = gfile.query_info(",".join(attributes),
+                             Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
+
     for attribute in attributes:
-        command = ["gio", "info", directory, "-a", attribute]
-        output, error = Popen(command,
-                              stdout=PIPE,
-                              stderr=PIPE).communicate()
-        output = output.strip().split("\n")
-        if len(output) == 3:
-            icons = output[2].split(attribute)[-1]
-            icons = icons.split(':')[-1]
-            icon = icons.strip().split(",")[0]
-            return icon
-        if error:
-            print(error.decode("utf-8"))
+        value = ginfo.get_attribute_string(attribute)
+        if value is not None:
+            return unquote(urlparse(value).path)
     return "folder"
 
 
 def set_folder_icon(folder, icon):
+    """Use Gio to set the default folder icon."""
+    gfile = Gio.File.new_for_path(folder)
+    prop = "metadata::custom-icon-name"
+    unset_prop = "metadata::custom-icon"
 
-    command = ["gio", "set", folder,
-               "metadata::custom-icon-name", icon]
-    output, error = Popen(command,
-                          stdout=PIPE,
-                          stderr=PIPE).communicate()
-    if error:
-        print(error.decode("utf-8"))
+    ginfo = gfile.query_info("{0},{1}".format(prop, unset_prop),
+                             Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
+
+    if len(icon.split("/")) > 1:
+        prop, unset_prop = unset_prop, prop
+        icon = "file://{}".format(icon)
+
+    # Set the new icon name
+    ginfo.set_attribute_string(prop, icon)
+    ginfo.set_attribute_status(prop, Gio.FileAttributeStatus.SET)
+    # Unset the other attribute
+    ginfo.remove_attribute(unset_prop)
+    ginfo.set_attribute_status(unset_prop, Gio.FileAttributeStatus.UNSET)
+    # Remove attribute doesn't seem to work correctly.
+    # File.set_attribute_from_info doesn't remove attributes
+    Popen(["gio", "set", folder, "-t", "unset", unset_prop],
+          stdout=PIPE, stderr=PIPE).communicate()
+    # Set the attributes to the file
+    gfile.set_attributes_from_info(ginfo,
+                                   Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
+
 
 def change_folder_icon(uri, window):
     directory = urlparse(uri)
@@ -85,57 +102,82 @@ class NautilusFolderIconsChooser(Gtk.Window, GObject.GObject):
     def __init__(self, default_icon, parent):
         GObject.GObject.__init__(self)
         Gtk.Window.__init__(self)
+
         self._default_icon = default_icon
 
+        # Window configurations
         self.set_default_size(350, 150)
         self.set_border_width(18)
         self.set_resizable(False)
         self.set_transient_for(parent)
         self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+
+        # Widgets & Accelerators
         self._build_header_bar()
         self._build_content()
         self._setup_accels()
+
         self.show_all()
 
     def _build_header_bar(self):
         # Header bar
-        hb = Gtk.HeaderBar()
-        hb.set_title(_("Icon Chooser"))
-        hb.set_show_close_button(False)
+        headerbar = Gtk.HeaderBar()
+        headerbar.set_title(_("Icon Chooser"))
+        headerbar.set_show_close_button(False)
 
         # Apply Button
-        self.apply_button = Gtk.Button()
-        self.apply_button.set_label(_("Apply"))
-        # self.apply_button.set_sensitive(False)
-        self.apply_button.get_style_context().add_class("suggested-action")
-        self.apply_button.connect("clicked", self._do_select)
+        self._apply_button = Gtk.Button()
+        self._apply_button.set_label(_("Apply"))
+        self._apply_button.set_sensitive(False)
+        self._apply_button.get_style_context().add_class("suggested-action")
+        self._apply_button.connect("clicked", self._do_select)
 
         # Cancel Button
         cancel_button = Gtk.Button()
         cancel_button.set_label(_("Cancel"))
         cancel_button.connect("clicked", self._close_window)
 
-        hb.pack_start(cancel_button)
-        hb.pack_end(self.apply_button)
-        self.set_titlebar(hb)
+        headerbar.pack_start(cancel_button)
+        headerbar.pack_end(self._apply_button)
+        self.set_titlebar(headerbar)
 
     def _build_content(self):
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                             spacing=6)
-
         container.set_halign(Gtk.Align.CENTER)
         container.set_valign(Gtk.Align.CENTER)
+
         # Preview image
         self._preview = Gtk.Image()
-        self._preview.set_from_icon_name(self._default_icon,
-                                         Gtk.IconSize.DIALOG)
+        # If the default icon is a file
+        if len(self._default_icon.split("/")) > 1:
+            self._preview.set_from_file(self._default_icon)
+        else:
+            self._preview.set_from_icon_name(self._default_icon,
+                                             Gtk.IconSize.DIALOG)
+
+        hz_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                               spacing=6)
         # Icon name entry
         self._icon_entry = Gtk.Entry()
         self._icon_entry.set_text(self._default_icon)
         self._icon_entry.connect("changed", self._refresh_preview)
+        self._icon_entry.grab_focus_without_selecting()
+
+        # Icon file selector
+        select_file = Gtk.Button()
+        select_icon = Gio.ThemedIcon(name="document-open-symbolic")
+        select_image = Gtk.Image.new_from_gicon(select_icon,
+                                                Gtk.IconSize.BUTTON)
+        select_file.set_image(select_image)
+        select_file.get_style_context().add_class("flat")
+        select_file.connect("clicked", self._on_select_file)
+
+        hz_container.pack_start(self._icon_entry, False, False, 6)
+        hz_container.pack_start(select_file, False, False, 6)
 
         container.pack_start(self._preview, False, False, 6)
-        container.pack_start(self._icon_entry, False, False, 6)
+        container.pack_start(hz_container, False, False, 6)
 
         self.add(container)
 
@@ -144,24 +186,51 @@ class NautilusFolderIconsChooser(Gtk.Window, GObject.GObject):
         self.add_accel_group(self._accels)
 
         key, mod = Gtk.accelerator_parse("Escape")
-        self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE, self._close_window)
+        self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
+                             self._close_window)
 
         key, mod = Gtk.accelerator_parse("Return")
-        self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE, self._do_select)
+        self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
+                             self._do_select)
+
+    def _on_select_file(self, button):
+        dialog = Gtk.FileChooserDialog(_("Select an icon"), self,
+                                       Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+        # Filter images
+        filter_images = Gtk.FileFilter()
+        filter_images.set_name("Image files")
+        filter_images.add_mime_type("image/png")
+        filter_images.add_mime_type("image/svg+xml")
+        dialog.add_filter(filter_images)
+
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            icon_path = urlparse(dialog.get_uri()).path
+            self._icon_entry.set_text(icon_path)
+        dialog.destroy()
 
     def _refresh_preview(self, entry):
         icon_name = entry.get_text().strip()
+        # Fallback to the default icon
         if not icon_name:
             icon_name = self._default_icon
-        self._preview.set_from_icon_name(icon_name,
-                                         Gtk.IconSize.DIALOG)
+        # No need to set the same icon again?
+        self._apply_button.set_sensitive(icon_name != self._default_icon)
+
+        if len(icon_name.split("/")) == 1:
+            self._preview.set_from_icon_name(icon_name,
+                                             Gtk.IconSize.DIALOG)
+        else:
+            self._preview.set_from_file(icon_name)
 
     def _do_select(self, *args):
         self.emit("selected", self._icon_entry.get_text())
         self._close_window()
 
     def _close_window(self, *args):
-        print(args)
         self.destroy()
 
 
