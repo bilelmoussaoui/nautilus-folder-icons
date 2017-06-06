@@ -21,7 +21,6 @@ Nautilus extension that makes changing folders icons easy!
 ### Running dependencies
 
 - `python2`
-- `gio` or `gvfs`
 
 #### For Nautilus :
 
