@@ -1,5 +1,5 @@
 project('nautilus-icons',
-  version: '1.3',
+  version: '1.0',
   meson_version: '>= 0.40.0'
 )
 
