@@ -63,3 +63,16 @@ nautilus -q
 ```bash
 sudo ninja -C builddir uninstall
 ```
+
+## Contribute 
+
+### Translations:
+
+In order to generate the pot file, run the following commands:
+
+```bash
+meson builddir --prefix=/usr
+ninja nautilus-icons-update-po                  
+```
+
+A `.pot` will be generated on `./po` which can be translated using Poedit. The PR should contain only the `.po` file
