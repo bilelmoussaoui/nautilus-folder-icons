@@ -64,7 +64,7 @@ nautilus -q
 sudo ninja -C builddir uninstall
 ```
 
-## Contribute :
+## Contribute 
 
 ### Translations:
 
@@ -75,4 +75,4 @@ meson builddir --prefix=/usr
 ninja nautilus-icons-update-po                  
 ```
 
-A `.pot` will be generated on `./po`
+A `.pot` will be generated on `./po` which can be translated using Poedit. The PR should contain only the `.po` file
