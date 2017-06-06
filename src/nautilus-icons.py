@@ -26,7 +26,7 @@ from urlparse import urlparse
 from gi import require_version
 require_version("Gtk", "3.0")
 require_version('Nautilus', '3.0')
-from gi.repository import Gtk, Nautilus, GObject, Gio
+from gi.repository import Gtk, Nautilus, GObject, Gio, GdkPixbuf
 
 textdomain('nautilus-folder-icons')
 
@@ -94,6 +94,23 @@ def change_folder_icon(uri, window):
         icon.connect("selected", set_icon)
 
 
+class Image(Gtk.Image):
+
+    def __init__(self):
+        Gtk.Image.__init__(self)
+
+    def set_icon(self, icon_name):
+        if len(icon_name.split("/")) > 1:
+            # Make sure the icon name doesn't contain any special char
+            icon_name = unquote(icon_name)
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
+                                                             48, 48, True)
+            self.set_from_pixbuf(pixbuf)
+        else:
+            self.set_from_icon_name(icon_name,
+                                    Gtk.IconSize.DIALOG)
+
+
 class NautilusFolderIconsChooser(Gtk.Window, GObject.GObject):
     __gsignals__ = {
         'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, ))
@@ -148,13 +165,8 @@ class NautilusFolderIconsChooser(Gtk.Window, GObject.GObject):
         container.set_valign(Gtk.Align.CENTER)
 
         # Preview image
-        self._preview = Gtk.Image()
-        # If the default icon is a file
-        if len(self._default_icon.split("/")) > 1:
-            self._preview.set_from_file(self._default_icon)
-        else:
-            self._preview.set_from_icon_name(self._default_icon,
-                                             Gtk.IconSize.DIALOG)
+        self._preview = Image()
+        self._preview.set_icon(self._default_icon)
 
         hz_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                                spacing=6)
@@ -220,11 +232,7 @@ class NautilusFolderIconsChooser(Gtk.Window, GObject.GObject):
         # No need to set the same icon again?
         self._apply_button.set_sensitive(icon_name != self._default_icon)
 
-        if len(icon_name.split("/")) == 1:
-            self._preview.set_from_icon_name(icon_name,
-                                             Gtk.IconSize.DIALOG)
-        else:
-            self._preview.set_from_file(icon_name)
+        self._preview.set_icon(icon_name)
 
     def _do_select(self, *args):
         self.emit("selected", self._icon_entry.get_text())
