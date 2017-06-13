@@ -2,9 +2,6 @@
 
 Nautilus extension that makes changing folders icons easy!
 
-
-
-
 ## Screenshots
 
 <div align="center"><img src="screenshots/screenshot1.png" alt="Preview" /></div>
@@ -15,14 +12,13 @@ Nautilus extension that makes changing folders icons easy!
 - `Return` To select the new folder icon
 - `<Shift><Ctrl>S` To open the folder icon selector on the current folder
 
-
-## Requirements:
+## Requirements
 
 ### Running dependencies
 
 - `python2`
 
-#### For Nautilus :
+#### For Nautilus
 
 - `nautilus-python`:
   - Archlinux : `python2-nautilus`
@@ -33,6 +29,7 @@ Nautilus extension that makes changing folders icons easy!
 - `ninja`
 
 ## How to install
+
 ### Manual installation
 
 1- Install requirements
@@ -51,7 +48,6 @@ meson builddir --prefix=/usr
 sudo ninja -C builddir install
 ```
 
-
 4- Restart Nautilus
 
 ```bash
@@ -64,15 +60,15 @@ nautilus -q
 sudo ninja -C builddir uninstall
 ```
 
-## Contribute 
+## Contribute
 
-### Translations:
+### Translations
 
 In order to generate the pot file, run the following commands:
 
 ```bash
 meson builddir --prefix=/usr
-ninja nautilus-icons-update-po                  
+ninja nautilus-folder-icons-update-po
 ```
 
 A `.pot` will be generated on `./po` which can be translated using Poedit. The PR should contain only the `.po` file
