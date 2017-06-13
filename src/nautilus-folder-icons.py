@@ -17,16 +17,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
-from gettext import textdomain, gettext as _
+from gettext import gettext as _
+from gettext import textdomain
 from os import path
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 from urllib2 import unquote
 from urlparse import urlparse
 
 from gi import require_version
 require_version("Gtk", "3.0")
 require_version('Nautilus', '3.0')
-from gi.repository import Gtk, Nautilus, GObject, Gio, GdkPixbuf
+from gi.repository import GdkPixbuf, Gio, GObject, Gtk, Nautilus
 
 textdomain('nautilus-folder-icons')
 
@@ -51,12 +52,16 @@ def get_default_icon(directory):
 def set_folder_icon(folder, icon):
     """Use Gio to set the default folder icon."""
     gfile = Gio.File.new_for_path(folder)
+    # Property to set by default
     prop = "metadata::custom-icon-name"
+    # Property to unsert by default
+    # Otherwise Nautilus won't be able
+    # to handle both icons at the same time
     unset_prop = "metadata::custom-icon"
 
     ginfo = gfile.query_info("{0},{1}".format(prop, unset_prop),
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
-
+    # In case the icon is a path & not an icon name
     if len(icon.split("/")) > 1:
         prop, unset_prop = unset_prop, prop
         icon = "file://{}".format(icon)
@@ -77,22 +82,24 @@ def set_folder_icon(folder, icon):
 
 
 def change_folder_icon(uri, window):
+    """Change default folder icon."""
     directory = urlparse(uri)
+    # Make sur it's a file scheme
     if directory.scheme == 'file':
         directory = unquote(directory.path)
 
         def set_icon(*args):
+            """Set the folder icon & refresh Nautilus's view."""
             icon_name = args[1]
             set_folder_icon(directory, icon_name)
             # Refresh Nautilus
             action = window.lookup_action("reload")
             action.emit("activate", None)
-
-        current_icon = get_default_icon(directory)
-
-        icon = NautilusFolderIconsChooser(current_icon, window)
+        # Show Icon Chooser window
+        icon = NautilusFolderIconChooser(directory)
+        icon.set_transient_for(window)
         icon.connect("selected", set_icon)
-
+        icon.show_all()
 
 class Image(Gtk.Image):
 
@@ -111,22 +118,22 @@ class Image(Gtk.Image):
                                     Gtk.IconSize.DIALOG)
 
 
-class NautilusFolderIconsChooser(Gtk.Window, GObject.GObject):
+class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
     __gsignals__ = {
         'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, ))
     }
 
-    def __init__(self, default_icon, parent):
+    def __init__(self, folder_path):
         GObject.GObject.__init__(self)
         Gtk.Window.__init__(self)
 
-        self._default_icon = default_icon
+        self._folder_path = folder_path
+        self._default_icon = get_default_icon(folder_path)
 
         # Window configurations
         self.set_default_size(350, 150)
         self.set_border_width(18)
         self.set_resizable(False)
-        self.set_transient_for(parent)
         self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
 
         # Widgets & Accelerators
@@ -134,12 +141,11 @@ class NautilusFolderIconsChooser(Gtk.Window, GObject.GObject):
         self._build_content()
         self._setup_accels()
 
-        self.show_all()
-
     def _build_header_bar(self):
         # Header bar
         headerbar = Gtk.HeaderBar()
         headerbar.set_title(_("Icon Chooser"))
+        headerbar.set_subtitle(self._folder_path)
         headerbar.set_show_close_button(False)
 
         # Apply Button
@@ -216,7 +222,6 @@ class NautilusFolderIconsChooser(Gtk.Window, GObject.GObject):
         filter_images.add_mime_type("image/png")
         filter_images.add_mime_type("image/svg+xml")
         dialog.add_filter(filter_images)
-
 
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
