@@ -1,1 +1,1 @@
-i18n.gettext('nautilus-icons', preset: 'glib')
+i18n.gettext(meson.project_name(), preset: 'glib')

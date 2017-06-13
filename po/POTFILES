@@ -1,2 +1,2 @@
-src/nautilus-icons.py
-data/nautilus-icons.metainfo.xml.in
+src/nautilus-folder-icons.py
+data/nautilus-folder-icons.metainfo.xml.in

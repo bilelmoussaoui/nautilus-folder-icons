@@ -11,3 +11,5 @@ trim_trailing_whitespace = true
 indent_size = 2
 [*.xml.in]
 indent_size = 2
+[*.build]
+indent_size = 2
