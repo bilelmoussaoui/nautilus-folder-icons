@@ -45,7 +45,7 @@ def get_default_icon(directory):
     for attribute in attributes:
         value = ginfo.get_attribute_string(attribute)
         if value is not None:
-            return unquote(urlparse(value).path)
+            return uriparse(value)
     return "folder"
 
 
@@ -105,6 +105,15 @@ def filter_folders(icon):
             and not icon.endswith("-symbolic"))
 
 
+def uriparse(uri):
+    """Uri parser & return the path."""
+    if not isinstance(uri, str):
+       uri = uri.get_uri()
+
+    return unquote(urlparse(uri).path)
+
+
+
 class Image(Gtk.Image):
 
     def __init__(self):
@@ -113,7 +122,7 @@ class Image(Gtk.Image):
     def set_icon(self, icon_name):
         if len(icon_name.split("/")) > 1:
             # Make sure the icon name doesn't contain any special char
-            icon_name = unquote(icon_name)
+            icon_name = uriparse(icon_name)
             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
                                                              48, 48, True)
             self.set_from_pixbuf(pixbuf)
@@ -256,7 +265,7 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
 
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
-            icon_path = urlparse(dialog.get_uri()).path
+            icon_path = uriparse(dialog.get_uri())
             self._icon_entry.set_text(icon_path)
         dialog.destroy()
 
@@ -283,7 +292,7 @@ class OpenFolderIconProvider(GObject.GObject,
 
     def __init__(self):
         self._window = None
-        self._uri = None
+        self._folder = None
 
     def _create_accel_group(self):
         self._accel_group = Gtk.AccelGroup()
@@ -292,14 +301,13 @@ class OpenFolderIconProvider(GObject.GObject,
                                   self._open_folder_icon)
 
     def _open_folder_icon(self, *args):
-        folder_path = unquote(urlparse(self._uri.get_uri()).path)
-        change_folder_icon(self._uri, self._window)
+        change_folder_icon([self._folder], self._window)
 
     def get_widget(self, uri, window):
-        self._uri = uri
+        self._folder = uriparse(uri)
         if self._window:
             self._window.remove_accel_group(self._accel_group)
-        if path.isdir(urlparse(unquote(self._uri)).path):
+        if path.isdir(self._folder):
             self._create_accel_group()
             window.add_accel_group(self._accel_group)
         self._window = window
@@ -314,8 +322,7 @@ class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
         for file_ in files:
             if not file_.is_directory() and file_.get_uri_scheme() != "file":
                 return False
-            folder = unquote(urlparse(file_.get_uri()).path)
-            folders.append(folder)
+            folders.append(uriparse(file_))
 
         item = Nautilus.MenuItem(name='NautilusPython::change_folder_icon',
                                  label=_('Folder Icon'),
