@@ -101,6 +101,14 @@ def change_folder_icon(uri, window):
         icon.connect("selected", set_icon)
         icon.show_all()
 
+
+def filter_folders(icon):
+    """Filter icons to only show folder ones."""
+    icon = icon.lower()
+    return (icon.startswith("folder")
+            and not icon.endswith("-symbolic"))
+
+
 class Image(Gtk.Image):
 
     def __init__(self):
@@ -181,6 +189,23 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         self._icon_entry.set_text(self._default_icon)
         self._icon_entry.connect("changed", self._refresh_preview)
         self._icon_entry.grab_focus_without_selecting()
+
+        # Icon Completion
+        self._completion = Gtk.EntryCompletion()
+        model = Gtk.ListStore(str, GdkPixbuf.Pixbuf)
+        # List all the places icons
+        theme = Gtk.IconTheme.get_default()
+        icons = theme.list_icons('Places')
+        folders = list(filter(filter_folders, icons))
+        for folder in folders:
+            icon = theme.load_icon(folder, 24, 0)
+            model.append([folder, icon])
+        pixbuf = Gtk.CellRendererPixbuf()
+        self._completion.pack_start(pixbuf, False)
+        self._completion.add_attribute(pixbuf, 'pixbuf', 1)
+        self._completion.set_model(model)
+        self._completion.set_text_column(0)
+        self._icon_entry.set_completion(self._completion)
 
         # Icon file selector
         select_file = Gtk.Button()
