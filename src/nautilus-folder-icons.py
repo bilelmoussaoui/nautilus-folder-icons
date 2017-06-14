@@ -27,7 +27,7 @@ from urlparse import urlparse
 from gi import require_version
 require_version("Gtk", "3.0")
 require_version('Nautilus', '3.0')
-from gi.repository import GdkPixbuf, Gio, GObject, Gtk, Nautilus
+from gi.repository import GdkPixbuf, Gio, GLib, GObject, Gtk, Nautilus
 
 textdomain('nautilus-folder-icons')
 
@@ -43,9 +43,10 @@ def get_default_icon(directory):
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
 
     for attribute in attributes:
-        value = ginfo.get_attribute_string(attribute)
-        if value is not None:
-            return uriparse(value)
+        if ginfo.has_attribute(attribute):
+            value = ginfo.get_attribute_string(attribute)
+            if value is not None:
+                return uriparse(value)
     return "folder"
 
 
@@ -247,6 +248,10 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
                              self._close_window)
 
+        key, mod = Gtk.accelerator_parse("<Ctrl>R")
+        self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
+                             self._restore_default_icon)
+
         key, mod = Gtk.accelerator_parse("Return")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
                              self._do_select)
@@ -278,6 +283,15 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         self._apply_button.set_sensitive(icon_name != self._default_icon)
 
         self._preview.set_icon(icon_name)
+
+    def _restore_default_icon(self, *args):
+        print("heyyyyy")
+        theme = Gtk.IconTheme.get_default()
+        if theme.has_icon(self._default_icon):
+            default_icon = self._default_icon
+        else:
+            default_icon = "folder"
+        self._icon_entry.set_text(default_icon)
 
     def _do_select(self, *args):
         self.emit("selected", self._icon_entry.get_text())
