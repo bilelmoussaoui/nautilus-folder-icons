@@ -60,7 +60,7 @@ def set_folder_icon(folder, icon):
     # to handle both icons at the same time
     unset_prop = "metadata::custom-icon"
 
-    ginfo = gfile.query_info("{},{1}".format(prop, unset_prop),
+    ginfo = gfile.query_info("{0},{1}".format(prop, unset_prop),
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
     # In case the icon is a path & not an icon name
     if len(icon.split("/")) > 1:
