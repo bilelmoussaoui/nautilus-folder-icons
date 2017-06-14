@@ -2,6 +2,8 @@
 
 Nautilus extension that makes changing folders icons easy!
 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/BilalELMoussaoui)
+
 ## Screenshots
 
 <div align="center"><img src="screenshots/screenshot1.png" alt="Preview" /></div>
