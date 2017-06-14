@@ -51,9 +51,6 @@ def get_default_icon(directory):
 
 def set_folder_icon(folder, icon):
     """Use Gio to set the default folder icon."""
-    if not isinstance(folder, str):
-        folder = folder.get_uri()
-    folder = unquote(urlparse(folder).path)
     gfile = Gio.File.new_for_path(folder)
     # Property to set by default
     prop = "metadata::custom-icon-name"
@@ -135,9 +132,8 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         Gtk.Window.__init__(self)
 
         if len(folders) == 1:
-            folder = urlparse(folders[0].get_uri()).path
-            self._folder_path = folder
-            self._default_icon = get_default_icon(folder)
+            self._folder_path = folders[0]
+            self._default_icon = get_default_icon(folders[0])
         else:
             self._folder_path = _("Number of folders: {}").format(str(len(folders)))
             self._default_icon = "folder"
@@ -291,6 +287,7 @@ class OpenFolderIconProvider(GObject.GObject,
                                   self._open_folder_icon)
 
     def _open_folder_icon(self, *args):
+        folder_path = unquote(urlparse(self._uri.get_uri()).path)
         change_folder_icon(self._uri, self._window)
 
     def get_widget(self, uri, window):
@@ -308,14 +305,17 @@ class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
 
     def get_file_items(self, window, files):
         # Force use to select only directories
+        folders = []
         for file_ in files:
             if not file_.is_directory() and file_.get_uri_scheme() != "file":
                 return False
+            folder = unquote(urlparse(file_.get_uri()).path)
+            folders.append(folder)
 
         item = Nautilus.MenuItem(name='NautilusPython::change_folder_icon',
                                  label=_('Folder Icon'),
                                  tip=_('Change folder icon'))
-        item.connect('activate', self._chagne_folder_icon, files, window)
+        item.connect('activate', self._chagne_folder_icon, folders, window)
         return [item]
 
 
