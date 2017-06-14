@@ -123,8 +123,9 @@ class Image(Gtk.Image):
         if len(icon_name.split("/")) > 1:
             # Make sure the icon name doesn't contain any special char
             icon_name = uriparse(icon_name)
+            ext = path.splitext(icon_name)[1].lower()
             # Be sure that the icon still exists on the system
-            if path.exists(icon_name):
+            if path.exists(icon_name) and ext in [".png", ".svg"]:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
                                                                  48, 48, True)
                 self.set_from_pixbuf(pixbuf)
