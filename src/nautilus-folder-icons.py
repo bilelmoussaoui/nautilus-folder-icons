@@ -206,6 +206,7 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         completion.set_text_column(0)
         completion.set_popup_set_width(True)
         completion.set_popup_single_match(True)
+        completion.set_match_func(self._filter_func)
         self._icon_entry.set_completion(completion)
 
         # Icon file selector
@@ -224,6 +225,10 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         container.pack_start(hz_container, False, False, 6)
 
         self.add(container)
+
+    def _filter_func(self, completion, data, iter):
+        model = completion.get_model()
+        return data in model[iter][0]
 
     def _setup_accels(self):
         self._accels = Gtk.AccelGroup()
