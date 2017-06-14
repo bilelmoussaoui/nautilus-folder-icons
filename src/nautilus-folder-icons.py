@@ -109,10 +109,9 @@ def filter_folders(icon):
 def uriparse(uri):
     """Uri parser & return the path."""
     if not isinstance(uri, str):
-       uri = uri.get_uri()
+        uri = uri.get_uri()
 
     return unquote(urlparse(uri).path)
-
 
 
 class Image(Gtk.Image):
@@ -150,7 +149,8 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
             self._folder_path = folders[0]
             self._default_icon = get_default_icon(folders[0])
         else:
-            self._folder_path = _("Number of folders: {}").format(str(len(folders)))
+            self._folder_path = _(
+                "Number of folders: {}").format(str(len(folders)))
             # Here i assume that all folders got the same icon...
             self._default_icon = get_default_icon(folders[0])
         # Window configurations
@@ -289,19 +289,22 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         # No need to set the same icon again?
         exists = False
         if len(icon_name.split("/")) > 1:
-            exists = path.exists(icon_name)
+            ext = path.splitext(icon_name)[1].lower()
+            exists = (path.exists(icon_name)
+                      and ext in [".svg", ".png"])
         else:
             theme = Gtk.IconTheme.get_default()
             exists = theme.has_icon(icon_name)
         self._apply_button.set_sensitive(exists and icon_name != "")
-
-        self._preview.set_icon(icon_name)
+        if exists:
+            self._preview.set_icon(icon_name)
+        else:
+            self._preview.set_icon("image-missing")
 
     def _do_select(self, *args):
         if self._apply_button.get_sensitive():
             self.emit("selected", self._icon_entry.get_text())
             self._close_window()
-
 
     def _close_window(self, *args):
         self.destroy()
@@ -349,7 +352,6 @@ class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
                                  tip=_('Change folder icon'))
         item.connect('activate', self._chagne_folder_icon, folders, window)
         return [item]
-
 
     def _chagne_folder_icon(self, *args):
         change_folder_icon(args[1], args[2])
