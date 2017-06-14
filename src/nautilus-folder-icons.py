@@ -60,7 +60,7 @@ def set_folder_icon(folder, icon):
     # to handle both icons at the same time
     unset_prop = "metadata::custom-icon"
 
-    ginfo = gfile.query_info("{0},{1}".format(prop, unset_prop),
+    ginfo = gfile.query_info("{},{1}".format(prop, unset_prop),
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
     # In case the icon is a path & not an icon name
     if len(icon.split("/")) > 1:
@@ -146,7 +146,8 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
             self._default_icon = get_default_icon(folders[0])
         else:
             self._folder_path = _("Number of folders: {}").format(str(len(folders)))
-            self._default_icon = "folder"
+            # Here i assume that all folders got the same icon...
+            self._default_icon = get_default_icon(folders[0])
         # Window configurations
         self.set_default_size(350, 150)
         self.set_border_width(18)
@@ -195,7 +196,10 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
                                spacing=6)
         # Icon name entry
         self._icon_entry = Gtk.Entry()
-        self._icon_entry.set_text(self._default_icon)
+        if self._default_icon:
+            self._icon_entry.set_text(self._default_icon)
+        else:
+            self._icon_entry.set_text("folder")
         self._icon_entry.connect("changed", self._refresh_preview)
         self._icon_entry.grab_focus_without_selecting()
 
@@ -228,8 +232,8 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         select_file.get_style_context().add_class("flat")
         select_file.connect("clicked", self._on_select_file)
 
-        hz_container.pack_start(self._icon_entry, False, False, 6)
-        hz_container.pack_start(select_file, False, False, 6)
+        hz_container.pack_start(self._icon_entry, False, False, 3)
+        hz_container.pack_start(select_file, False, False, 3)
 
         container.pack_start(self._preview, False, False, 6)
         container.pack_start(hz_container, False, False, 6)
@@ -247,10 +251,6 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         key, mod = Gtk.accelerator_parse("Escape")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
                              self._close_window)
-
-        key, mod = Gtk.accelerator_parse("<Ctrl>R")
-        self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
-                             self._restore_default_icon)
 
         key, mod = Gtk.accelerator_parse("Return")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
@@ -280,18 +280,15 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         if not icon_name:
             icon_name = self._default_icon
         # No need to set the same icon again?
-        self._apply_button.set_sensitive(icon_name != self._default_icon)
+        exists = False
+        if len(icon_name.split("/")) > 1:
+            exists = path.exists(icon_name)
+        else:
+            theme = Gtk.IconTheme.get_default()
+            exists = theme.has_icon(icon_name)
+        self._apply_button.set_sensitive(exists)
 
         self._preview.set_icon(icon_name)
-
-    def _restore_default_icon(self, *args):
-        print("heyyyyy")
-        theme = Gtk.IconTheme.get_default()
-        if theme.has_icon(self._default_icon):
-            default_icon = self._default_icon
-        else:
-            default_icon = "folder"
-        self._icon_entry.set_text(default_icon)
 
     def _do_select(self, *args):
         self.emit("selected", self._icon_entry.get_text())
