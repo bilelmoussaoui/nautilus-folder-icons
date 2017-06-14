@@ -210,6 +210,7 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         theme = Gtk.IconTheme.get_default()
         icons = theme.list_icons('Places')
         folders = list(filter(filter_folders, icons))
+        folders.sort()
         for folder in folders:
             icon = theme.load_icon(folder, 24, 0)
             model.append([folder, icon])
@@ -275,7 +276,8 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         dialog.destroy()
 
     def _refresh_preview(self, entry):
-        icon_name = entry.get_text().strip()
+        icon_name = uriparse(entry.get_text().strip())
+        self._icon_entry.set_text(icon_name)
         # Fallback to the default icon
         if not icon_name:
             icon_name = self._default_icon
@@ -286,13 +288,15 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         else:
             theme = Gtk.IconTheme.get_default()
             exists = theme.has_icon(icon_name)
-        self._apply_button.set_sensitive(exists)
+        self._apply_button.set_sensitive(exists and icon_name != "")
 
         self._preview.set_icon(icon_name)
 
     def _do_select(self, *args):
-        self.emit("selected", self._icon_entry.get_text())
-        self._close_window()
+        if self._apply_button.get_sensitive():
+            self.emit("selected", self._icon_entry.get_text())
+            self._close_window()
+
 
     def _close_window(self, *args):
         self.destroy()
