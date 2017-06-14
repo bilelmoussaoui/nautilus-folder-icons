@@ -124,9 +124,14 @@ class Image(Gtk.Image):
         if len(icon_name.split("/")) > 1:
             # Make sure the icon name doesn't contain any special char
             icon_name = uriparse(icon_name)
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
-                                                             48, 48, True)
-            self.set_from_pixbuf(pixbuf)
+            # Be sure that the icon still exists on the system
+            if path.exists(icon_name):
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
+                                                                 48, 48, True)
+                self.set_from_pixbuf(pixbuf)
+            else:
+                self.set_from_icon_name("image-missing",
+                                        Gtk.IconSize.DIALOG)
         else:
             self.set_from_icon_name(icon_name,
                                     Gtk.IconSize.DIALOG)
