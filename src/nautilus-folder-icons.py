@@ -51,6 +51,9 @@ def get_default_icon(directory):
 
 def set_folder_icon(folder, icon):
     """Use Gio to set the default folder icon."""
+    if not isinstance(folder, str):
+        folder = folder.get_uri()
+    folder = unquote(urlparse(folder).path)
     gfile = Gio.File.new_for_path(folder)
     # Property to set by default
     prop = "metadata::custom-icon-name"
@@ -81,25 +84,21 @@ def set_folder_icon(folder, icon):
                                    Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
 
 
-def change_folder_icon(uri, window):
+def change_folder_icon(folders, window):
     """Change default folder icon."""
-    directory = urlparse(uri)
-    # Make sur it's a file scheme
-    if directory.scheme == 'file':
-        directory = unquote(directory.path)
-
-        def set_icon(*args):
-            """Set the folder icon & refresh Nautilus's view."""
-            icon_name = args[1]
-            set_folder_icon(directory, icon_name)
-            # Refresh Nautilus
-            action = window.lookup_action("reload")
-            action.emit("activate", None)
-        # Show Icon Chooser window
-        icon = NautilusFolderIconChooser(directory)
-        icon.set_transient_for(window)
-        icon.connect("selected", set_icon)
-        icon.show_all()
+    def set_icon(*args):
+        """Set the folder icon & refresh Nautilus's view."""
+        icon_name = args[1]
+        for folder in folders:
+            set_folder_icon(folder, icon_name)
+        # Refresh Nautilus
+        action = window.lookup_action("reload")
+        action.emit("activate", None)
+    # Show Icon Chooser window
+    icon = NautilusFolderIconChooser(folders)
+    icon.set_transient_for(window)
+    icon.connect("selected", set_icon)
+    icon.show_all()
 
 
 def filter_folders(icon):
@@ -131,13 +130,17 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, ))
     }
 
-    def __init__(self, folder_path):
+    def __init__(self, folders):
         GObject.GObject.__init__(self)
         Gtk.Window.__init__(self)
 
-        self._folder_path = folder_path
-        self._default_icon = get_default_icon(folder_path)
-
+        if len(folders) == 1:
+            folder = urlparse(folders[0].get_uri()).path
+            self._folder_path = folder
+            self._default_icon = get_default_icon(folder)
+        else:
+            self._folder_path = _("Number of folders: {}").format(str(len(folders)))
+            self._default_icon = "folder"
         # Window configurations
         self.set_default_size(350, 150)
         self.set_border_width(18)
@@ -205,6 +208,8 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         completion.add_attribute(pixbuf, 'pixbuf', 1)
         completion.set_model(model)
         completion.set_text_column(0)
+        completion.set_popup_set_width(True)
+        completion.set_popup_single_match(True)
         self._icon_entry.set_completion(completion)
 
         # Icon file selector
@@ -302,19 +307,17 @@ class OpenFolderIconProvider(GObject.GObject,
 class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
 
     def get_file_items(self, window, files):
-        if len(files) != 1:
-            return
-        file_ = files[0]
+        # Force use to select only directories
+        for file_ in files:
+            if not file_.is_directory() and file_.get_uri_scheme() != "file":
+                return False
 
-        if file_.is_directory():
-            directory = file_.get_uri()
+        item = Nautilus.MenuItem(name='NautilusPython::change_folder_icon',
+                                 label=_('Folder Icon'),
+                                 tip=_('Change folder icon'))
+        item.connect('activate', self._chagne_folder_icon, files, window)
+        return [item]
 
-            item = Nautilus.MenuItem(name='NautilusPython::change_folder_icon',
-                                     label=_('Folder Icon'),
-                                     tip=_('Change folder icon of {}').format(directory))
-            item.connect('activate', self._chagne_folder_icon,
-                         directory, window)
-            return [item]
 
     def _chagne_folder_icon(self, *args):
         change_folder_icon(args[1], args[2])
