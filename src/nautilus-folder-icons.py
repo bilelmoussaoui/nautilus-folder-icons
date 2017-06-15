@@ -32,6 +32,9 @@ from gi.repository import GdkPixbuf, Gio, GLib, GObject, Gtk, Nautilus
 textdomain('nautilus-folder-icons')
 
 
+SUPPORTED_EXTS = ["svg", "png"]
+
+
 def get_default_icon(directory):
     """Use Gio to get the default icon."""
     attributes = ["metadata::custom-icon",
@@ -63,7 +66,7 @@ def set_folder_icon(folder, icon):
     ginfo = gfile.query_info("{0},{1}".format(prop, unset_prop),
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
     # In case the icon is a path & not an icon name
-    if len(icon.split("/")) > 1:
+    if is_path(icon):
         prop, unset_prop = unset_prop, prop
         icon = "file://{}".format(icon)
 
@@ -110,8 +113,17 @@ def uriparse(uri):
     """Uri parser & return the path."""
     if not isinstance(uri, str):
         uri = uri.get_uri()
-
     return unquote(urlparse(uri).path)
+
+
+def is_path(icon):
+    """Returns whether an icon is an absolute path or an icon name."""
+    return len(icon.split("/")) > 1
+
+
+def get_ext(filepath):
+    """Returns file extension."""
+    return path.splitext(filepath)[1].lower()
 
 
 class Image(Gtk.Image):
@@ -120,12 +132,12 @@ class Image(Gtk.Image):
         Gtk.Image.__init__(self)
 
     def set_icon(self, icon_name):
-        if len(icon_name.split("/")) > 1:
+        icon_name = uriparse(icon_name)
+        if is_path(icon_name):
             # Make sure the icon name doesn't contain any special char
-            icon_name = uriparse(icon_name)
-            ext = path.splitext(icon_name)[1].lower()
+            ext = get_ext(icon_name)
             # Be sure that the icon still exists on the system
-            if path.exists(icon_name) and ext in [".png", ".svg"]:
+            if path.exists(icon_name) and ext in SUPPORTED_EXTS:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
                                                                  48, 48, True)
                 self.set_from_pixbuf(pixbuf)
@@ -146,12 +158,12 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         GObject.GObject.__init__(self)
         Gtk.Window.__init__(self)
 
-        if len(folders) == 1:
+        counter = len(folders)
+        if counter == 1:
             self._folder_path = folders[0]
             self._default_icon = get_default_icon(folders[0])
         else:
-            self._folder_path = _(
-                "Number of folders: {}").format(str(len(folders)))
+            self._folder_path = _("Number of folders: {}").format(str(counter))
             # Here i assume that all folders got the same icon...
             self._default_icon = get_default_icon(folders[0])
         # Window configurations
@@ -263,7 +275,7 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
                              self._do_select)
 
-    def _on_select_file(self, button):
+    def _on_select_file(self, *args):
         dialog = Gtk.FileChooserDialog(_("Select an icon"), self,
                                        Gtk.FileChooserAction.OPEN,
                                        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
@@ -283,20 +295,20 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
 
     def _refresh_preview(self, entry):
         icon_name = uriparse(entry.get_text().strip())
-        self._icon_entry.set_text(icon_name)
+        entry.set_text(icon_name)
         # Fallback to the default icon
         if not icon_name:
             icon_name = self._default_icon
         # No need to set the same icon again?
         exists = False
-        if len(icon_name.split("/")) > 1:
-            ext = path.splitext(icon_name)[1].lower()
+        if is_path(icon_name):
+            ext = get_ext(icon_name)
             exists = (path.exists(icon_name)
-                      and ext in [".svg", ".png"])
+                      and ext in SUPPORTED_EXTS)
         else:
             theme = Gtk.IconTheme.get_default()
             exists = theme.has_icon(icon_name)
-        self._apply_button.set_sensitive(exists and icon_name != "")
+        self._apply_button.set_sensitive(exists and icon_name)
         if exists:
             self._preview.set_icon(icon_name)
         else:
@@ -317,6 +329,7 @@ class OpenFolderIconProvider(GObject.GObject,
     def __init__(self):
         self._window = None
         self._folder = None
+        self._accel_group = None
 
     def _create_accel_group(self):
         self._accel_group = Gtk.AccelGroup()
@@ -344,9 +357,10 @@ class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
         # Force use to select only directories
         folders = []
         for file_ in files:
-            if not file_.is_directory() and file_.get_uri_scheme() != "file":
+            if not file_.is_directory() or file_.get_uri_scheme() != "file":
                 return False
-            folders.append(uriparse(file_))
+            folder = uriparse(file_)
+            folders.append(folder)
 
         item = Nautilus.MenuItem(name='NautilusPython::change_folder_icon',
                                  label=_('Folder Icon'),
