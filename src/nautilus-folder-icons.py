@@ -3,7 +3,7 @@
 Change your nautilus directories icons easily
 
 Author : Bilal Elmoussaoui (bil.elmoussaoui@gmail.com)
-Version : 1.1
+Version : 1.2
 Website : https://github.com/bil-elmoussaoui/nautilus-folder-icons
 Licence : GPL-3.0
 nautilus-folder-icons is free software: you can redistribute it and/or
@@ -32,7 +32,7 @@ from gi.repository import GdkPixbuf, Gio, GObject, Gtk, Nautilus
 textdomain('nautilus-folder-icons')
 
 
-SUPPORTED_EXTS = ["svg", "png"]
+SUPPORTED_EXTS = [".svg", ".png"]
 
 
 def get_default_icon(directory):
