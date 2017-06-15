@@ -32,6 +32,13 @@ Nautilus extension that makes changing folders icons easy!
 
 ## How to install
 
+### Arch Linux
+
+```bash
+yaourt -S nautilus-folder-icons
+```
+
+
 ### Manual installation
 
 1- Install requirements
