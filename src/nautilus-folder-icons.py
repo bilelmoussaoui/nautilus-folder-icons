@@ -153,15 +153,8 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
     def __init__(self, folders):
         GObject.GObject.__init__(self)
         Gtk.Window.__init__(self)
-
-        counter = len(folders)
-        if counter == 1:
-            self._folder_path = folders[0]
-            self._default_icon = get_default_icon(folders[0])
-        else:
-            self._folder_path = _("Number of folders: {}").format(str(counter))
-            # Here i assume that all folders got the same icon...
-            self._default_icon = get_default_icon(folders[0])
+        # Here i assume that all folders got the same icon...
+        self._folders = folders
         # Window configurations
         self.set_default_size(350, 150)
         self.set_border_width(18)
@@ -177,7 +170,12 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         # Header bar
         headerbar = Gtk.HeaderBar()
         headerbar.set_title(_("Icon Chooser"))
-        headerbar.set_subtitle(self._folder_path)
+        counter = len(self._folders)
+        if counter == 1:
+            subtitle = self._folders[0]
+        else:
+            subtitle = _("Number of folders: {}").format(str(counter))
+        headerbar.set_subtitle(subtitle)
         headerbar.set_show_close_button(False)
 
         # Apply Button
@@ -204,6 +202,7 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
 
         # Preview image
         self._preview = Image()
+        self._default_icon = get_default_icon(self._folders[0])
         self._preview.set_icon(self._default_icon)
 
         hz_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
@@ -225,9 +224,11 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
         icons = theme.list_icons('Places')
         folders = list(filter(filter_folders, icons))
         folders.sort()
+        # Fill in the model (str: icon path, pixbuf)
         for folder in folders:
             icon = theme.load_icon(folder, 24, 0)
             model.append([folder, icon])
+
         pixbuf = Gtk.CellRendererPixbuf()
         completion.pack_start(pixbuf, False)
         completion.add_attribute(pixbuf, 'pixbuf', 1)
@@ -255,9 +256,9 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
 
         self.add(container)
 
-    def _filter_func(self, completion, data, iter):
+    def _filter_func(self, completion, data, iterr):
         model = completion.get_model()
-        return data in model[iter][0]
+        return data in model[iterr][0]
 
     def _setup_accels(self):
         self._accels = Gtk.AccelGroup()
