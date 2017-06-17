@@ -20,7 +20,6 @@ along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 from gettext import gettext as _
 from gettext import textdomain
 from os import path
-from subprocess import PIPE, Popen
 from urllib2 import unquote
 from urlparse import urlparse
 
@@ -42,7 +41,7 @@ def get_default_icon(directory):
                   "standard::icon"]
 
     gfile = Gio.File.new_for_path(directory)
-    ginfo = gfile.query_info(",".join(attributes),
+    ginfo = gfile.query_info("standard::icon,metadata::*",
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
 
     for attribute in attributes:
@@ -63,7 +62,7 @@ def set_folder_icon(folder, icon):
     # to handle both icons at the same time
     unset_prop = "metadata::custom-icon"
 
-    ginfo = gfile.query_info("{0},{1}".format(prop, unset_prop),
+    ginfo = gfile.query_info("metadata::*",
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
     # In case the icon is a path & not an icon name
     if is_path(icon):
@@ -74,12 +73,9 @@ def set_folder_icon(folder, icon):
     ginfo.set_attribute_string(prop, icon)
     ginfo.set_attribute_status(prop, Gio.FileAttributeStatus.SET)
     # Unset the other attribute
-    ginfo.remove_attribute(unset_prop)
-    ginfo.set_attribute_status(unset_prop, Gio.FileAttributeStatus.UNSET)
-    # Remove attribute doesn't seem to work correctly.
-    # File.set_attribute_from_info doesn't remove attributes
-    Popen(["gio", "set", folder, "-t", "unset", unset_prop],
-          stdout=PIPE, stderr=PIPE).communicate()
+    if ginfo.has_attribute(unset_prop):
+        ginfo.set_attribute(unset_prop,
+                            Gio.FileAttributeType.INVALID, 0)
     # Set the attributes to the file
     gfile.set_attributes_from_info(ginfo,
                                    Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
