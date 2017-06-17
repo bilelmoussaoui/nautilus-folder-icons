@@ -1,0 +1,63 @@
+# The Japanese translation for nautilus-folder-icons.
+# Copyright (C) 2017 Bilal Elmoussaoui
+# This file is distributed under the same license as the nautilus-folder-icons package.
+# HRKo <ootaharuki99@gmail.com>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: nautilus-folder-icons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-06-17 09:15+0900\n"
+"PO-Revision-Date: 2017-06-17 09:31+0900\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.1\n"
+"Last-Translator: HRKo <ootaharuki99@gmail.com>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: ja_JP\n"
+
+#: src/nautilus-folder-icons.py:166
+msgid "Number of folders: {}"
+msgstr "フォルダ数: {}"
+
+#: src/nautilus-folder-icons.py:183
+msgid "Icon Chooser"
+msgstr "アイコンの変更"
+
+#: src/nautilus-folder-icons.py:189
+msgid "Apply"
+msgstr "適用"
+
+#: src/nautilus-folder-icons.py:196
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: src/nautilus-folder-icons.py:279
+msgid "Select an icon"
+msgstr "アイコンの選択"
+
+#: src/nautilus-folder-icons.py:366
+msgid "Folder Icon"
+msgstr "アイコンの変更…"
+
+#: src/nautilus-folder-icons.py:367
+msgid "Change folder icon"
+msgstr "フォルダアイコン変更"
+
+#: data/nautilus-folder-icons.metainfo.xml.in:8
+msgid "Nautilus Folder Icons"
+msgstr "Nautilus フォルダアイコン"
+
+#: data/nautilus-folder-icons.metainfo.xml.in:9
+msgid "Nautilus extension to change folders icons"
+msgstr "フォルダアイコンを変更する Nautilus 拡張機能"
+
+#: data/nautilus-folder-icons.metainfo.xml.in:11
+msgid "Nautilus extension that makes it easier for you to change folders icons"
+msgstr "フォルダのアイコンの変更を簡単にする Nautilus 拡張機能"
+
+#: data/nautilus-folder-icons.metainfo.xml.in:18
+msgid "Bilal Elmoussaoui"
+msgstr "Bilal Elmoussaoui"
