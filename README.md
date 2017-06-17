@@ -29,6 +29,7 @@ Nautilus extension that makes changing folders icons easy!
 
 - `meson` >= `0.40.0`
 - `ninja`
+- `appstream-glib`
 
 ## How to install
 
