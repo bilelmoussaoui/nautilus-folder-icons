@@ -3,7 +3,7 @@
 Change your nautilus directories icons easily
 
 Author : Bilal Elmoussaoui (bil.elmoussaoui@gmail.com)
-Version : 1.2
+Version : 2.0
 Website : https://github.com/bil-elmoussaoui/nautilus-folder-icons
 Licence : GPL-3.0
 nautilus-folder-icons is free software: you can redistribute it and/or
@@ -18,134 +18,20 @@ You should have received a copy of the GNU General Public License
 along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
 from gettext import gettext as _
-from gettext import textdomain
-from os import path
-from urllib2 import unquote
-from urlparse import urlparse
+from os import environ
+from sys import path as sys_path
 
 from gi import require_version
 require_version("Gtk", "3.0")
-require_version('Nautilus', '3.0')
-from gi.repository import GdkPixbuf, Gio, GObject, Gtk, Nautilus
+from gi.repository import GdkPixbuf, Gio, GObject, Gtk
 
-textdomain('nautilus-folder-icons')
+from utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon,
+                   get_ext, is_path, uriparse)
 
-
-SUPPORTED_EXTS = [".svg", ".png"]
-
-
-def get_default_icon(directory):
-    """Use Gio to get the default icon."""
-    attributes = ["metadata::custom-icon",
-                  "metadata::custom-icon-name",
-                  "standard::icon"]
-
-    gfile = Gio.File.new_for_path(directory)
-    ginfo = gfile.query_info("standard::icon,metadata::*",
-                             Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
-
-    for attribute in attributes:
-        if ginfo.has_attribute(attribute):
-            value = ginfo.get_attribute_string(attribute)
-            if value is not None:
-                return uriparse(value)
-    return "folder"
+sys_path.insert(0, environ.get("DATA_DIR"))
 
 
-def set_folder_icon(folder, icon):
-    """Use Gio to set the default folder icon."""
-    gfile = Gio.File.new_for_path(folder)
-    # Property to set by default
-    prop = "metadata::custom-icon-name"
-    # Property to unsert by default
-    # Otherwise Nautilus won't be able
-    # to handle both icons at the same time
-    unset_prop = "metadata::custom-icon"
-
-    ginfo = gfile.query_info("metadata::*",
-                             Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
-    # In case the icon is a path & not an icon name
-    if is_path(icon):
-        prop, unset_prop = unset_prop, prop
-        icon = "file://{}".format(icon)
-
-    # Set the new icon name
-    ginfo.set_attribute_string(prop, icon)
-    ginfo.set_attribute_status(prop, Gio.FileAttributeStatus.SET)
-    # Unset the other attribute
-    if ginfo.has_attribute(unset_prop):
-        ginfo.set_attribute(unset_prop,
-                            Gio.FileAttributeType.INVALID, 0)
-    # Set the attributes to the file
-    gfile.set_attributes_from_info(ginfo,
-                                   Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
-
-
-def change_folder_icon(folders, window):
-    """Change default folder icon."""
-    def set_icon(*args):
-        """Set the folder icon & refresh Nautilus's view."""
-        icon_name = args[1]
-        for folder in folders:
-            set_folder_icon(folder, icon_name)
-        # Refresh Nautilus
-        action = window.lookup_action("reload")
-        action.emit("activate", None)
-    # Show Icon Chooser window
-    icon = NautilusFolderIconChooser(folders)
-    icon.set_transient_for(window)
-    icon.connect("selected", set_icon)
-    icon.show_all()
-
-
-def filter_folders(icon):
-    """Filter icons to only show folder ones."""
-    icon = icon.lower()
-    return (icon.startswith("folder")
-            and not icon.endswith("-symbolic"))
-
-
-def uriparse(uri):
-    """Uri parser & return the path."""
-    if not isinstance(uri, str):
-        uri = uri.get_uri()
-    return unquote(urlparse(uri).path)
-
-
-def is_path(icon):
-    """Returns whether an icon is an absolute path or an icon name."""
-    return len(icon.split("/")) > 1
-
-
-def get_ext(filepath):
-    """Returns file extension."""
-    return path.splitext(filepath)[1].lower()
-
-
-class Image(Gtk.Image):
-
-    def __init__(self):
-        Gtk.Image.__init__(self)
-
-    def set_icon(self, icon_name):
-        icon_name = uriparse(icon_name)
-        if is_path(icon_name):
-            # Make sure the icon name doesn't contain any special char
-            ext = get_ext(icon_name)
-            # Be sure that the icon still exists on the system
-            if path.exists(icon_name) and ext in SUPPORTED_EXTS:
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
-                                                                 48, 48, True)
-                self.set_from_pixbuf(pixbuf)
-            else:
-                self.set_from_icon_name("image-missing",
-                                        Gtk.IconSize.DIALOG)
-        else:
-            self.set_from_icon_name(icon_name,
-                                    Gtk.IconSize.DIALOG)
-
-
-class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
+class FolderIconChooser(Gtk.Window, GObject.GObject):
     __gsignals__ = {
         'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, ))
     }
@@ -279,7 +165,7 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
                                         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
         # Filter images
         filter_images = Gtk.FileFilter()
-        filter_images.set_name("Image files")
+        filter_images.set_name(_("Image files"))
         filter_images.add_mime_type("image/png")
         filter_images.add_mime_type("image/svg+xml")
         dialog.add_filter(filter_images)
@@ -318,52 +204,3 @@ class NautilusFolderIconChooser(Gtk.Window, GObject.GObject):
 
     def _close_window(self, *args):
         self.destroy()
-
-
-class OpenFolderIconProvider(GObject.GObject,
-                             Nautilus.LocationWidgetProvider):
-
-    def __init__(self):
-        self._window = None
-        self._folder = None
-        self._accel_group = None
-
-    def _create_accel_group(self):
-        self._accel_group = Gtk.AccelGroup()
-        key, mod = Gtk.accelerator_parse("<Shift><Ctrl>S")
-        self._accel_group.connect(key, mod, Gtk.AccelFlags.VISIBLE,
-                                  self._open_folder_icon)
-
-    def _open_folder_icon(self, *args):
-        change_folder_icon([self._folder], self._window)
-
-    def get_widget(self, uri, window):
-        self._folder = uriparse(uri)
-        if self._window:
-            self._window.remove_accel_group(self._accel_group)
-        if path.isdir(self._folder):
-            self._create_accel_group()
-            window.add_accel_group(self._accel_group)
-        self._window = window
-        return None
-
-
-class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
-
-    def get_file_items(self, window, files):
-        # Force use to select only directories
-        folders = []
-        for file_ in files:
-            if not file_.is_directory() or file_.get_uri_scheme() != "file":
-                return False
-            folder = uriparse(file_)
-            folders.append(folder)
-
-        item = Nautilus.MenuItem(name='NautilusPython::change_folder_icon',
-                                 label=_('Folder Icon'),
-                                 tip=_('Change folder icon'))
-        item.connect('activate', self._chagne_folder_icon, folders, window)
-        return [item]
-
-    def _chagne_folder_icon(self, *args):
-        change_folder_icon(args[1], args[2])

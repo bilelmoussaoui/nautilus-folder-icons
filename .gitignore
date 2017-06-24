@@ -1,5 +1,4 @@
 build/
 tags
 po/*.po~
-po/*.pot
 builddir/

@@ -1,0 +1,84 @@
+#!/usr/bin/python2
+"""
+Change your nautilus directories icons easily
+
+Author : Bilal Elmoussaoui (bil.elmoussaoui@gmail.com)
+Version : 2.0
+Website : https://github.com/bil-elmoussaoui/nautilus-folder-icons
+Licence : GPL-3.0
+nautilus-folder-icons is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+nautilus-folder-icons is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
+"""
+from gettext import gettext as _
+from gettext import textdomain
+from os import environ, path
+from sys import path as sys_path
+
+from gi import require_version
+require_version("Gtk", "3.0")
+require_version("Nautilus", "3.0")
+from gi.repository import GObject, Gtk, Nautilus
+
+
+textdomain('nautilus-folder-icons')
+
+environ["DATA_DIR"] = "@DATADIR@"
+sys_path.insert(0, environ["DATA_DIR"])
+from utils import change_folder_icon, uriparse
+
+
+class OpenFolderIconProvider(GObject.GObject,
+                             Nautilus.LocationWidgetProvider):
+
+    def __init__(self):
+        self._window = None
+        self._folder = None
+        self._accel_group = None
+
+    def _create_accel_group(self):
+        self._accel_group = Gtk.AccelGroup()
+        key, mod = Gtk.accelerator_parse("<Shift><Ctrl>S")
+        self._accel_group.connect(key, mod, Gtk.AccelFlags.VISIBLE,
+                                  self._open_folder_icon)
+
+    def _open_folder_icon(self, *args):
+        change_folder_icon([self._folder], self._window)
+
+    def get_widget(self, uri, window):
+        self._folder = uriparse(uri)
+        if self._window:
+            self._window.remove_accel_group(self._accel_group)
+        if path.isdir(self._folder):
+            self._create_accel_group()
+            window.add_accel_group(self._accel_group)
+        self._window = window
+        return None
+
+
+class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
+
+    def get_file_items(self, window, files):
+        # Force use to select only directories
+        folders = []
+        for file_ in files:
+            if not file_.is_directory() or file_.get_uri_scheme() != "file":
+                return False
+            folder = uriparse(file_)
+            folders.append(folder)
+
+        item = Nautilus.MenuItem(name='NautilusPython::change_folder_icon',
+                                 label=_('Folder Icon'),
+                                 tip=_('Change folder icon'))
+        item.connect('activate', self._chagne_folder_icon, folders, window)
+        return [item]
+
+    def _chagne_folder_icon(self, *args):
+        change_folder_icon(args[1], args[2])

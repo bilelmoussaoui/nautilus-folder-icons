@@ -1,58 +1,57 @@
-# The Japanese translation for nautilus-folder-icons.
-# Copyright (C) 2017 Bilal Elmoussaoui
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the nautilus-folder-icons package.
-# HRKo <ootaharuki99@gmail.com>, 2017.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: nautilus-folder-icons\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-24 19:16+0200\n"
-"PO-Revision-Date: 2017-06-17 09:31+0900\n"
-"Last-Translator: HRKo <ootaharuki99@gmail.com>\n"
-"Language-Team: \n"
-"Language: ja_JP\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.1\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: data/nautilus-folder-icons.metainfo.xml.in:8
 msgid "Nautilus Folder Icons"
-msgstr "Nautilus フォルダアイコン"
+msgstr ""
 
 #: data/nautilus-folder-icons.metainfo.xml.in:9
 msgid "Nautilus extension to change folders icons"
-msgstr "フォルダアイコンを変更する Nautilus 拡張機能"
+msgstr ""
 
 #: data/nautilus-folder-icons.metainfo.xml.in:11
 msgid "Nautilus extension that makes it easier for you to change folders icons"
-msgstr "フォルダのアイコンの変更を簡単にする Nautilus 拡張機能"
+msgstr ""
 
 #: data/nautilus-folder-icons.metainfo.xml.in:18
 msgid "Bilal Elmoussaoui"
-msgstr "Bilal Elmoussaoui"
+msgstr ""
 
 #: src/folder-icons/icons_select.py:58
 msgid "Icon Chooser"
-msgstr "アイコンの変更"
+msgstr ""
 
 #: src/folder-icons/icons_select.py:63
 msgid "Number of folders: {}"
-msgstr "フォルダ数: {}"
+msgstr ""
 
 #: src/folder-icons/icons_select.py:69
 msgid "Apply"
-msgstr "適用"
+msgstr ""
 
 #: src/folder-icons/icons_select.py:76
 msgid "Cancel"
-msgstr "キャンセル"
+msgstr ""
 
 #: src/folder-icons/icons_select.py:162
 msgid "Select an icon"
-msgstr "アイコンの選択"
+msgstr ""
 
 #: src/folder-icons/icons_select.py:168
 msgid "Image files"
@@ -61,9 +60,9 @@ msgstr ""
 #: src/nautilus/nautilus-folder-icons.py.in:78
 #: src/nemo/nemo-folder-icons.py.in:78
 msgid "Folder Icon"
-msgstr "アイコンの変更…"
+msgstr ""
 
 #: src/nautilus/nautilus-folder-icons.py.in:79
 #: src/nemo/nemo-folder-icons.py.in:79
 msgid "Change folder icon"
-msgstr "フォルダアイコン変更"
+msgstr ""

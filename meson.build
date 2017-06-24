@@ -5,12 +5,39 @@ project('nautilus-folder-icons',
 
 i18n = import('i18n')
 
-extension_dir = join_paths(get_option('datadir'), 'nautilus-python', 'extensions')
+file_manager = get_option('file_manager')
+if file_manager == 'nautilus'
+  package = 'nautilus-folder-icons'
+  destination = 'nautilus-python'
+  filename = 'nautilus-folder-icons.py'
+elif file_manager == 'nemo'
+  package = 'nemo-folder-icons'
+  destination = 'nemo-python'
+  filename = 'nemo-folder-icons.py'
+endif
+
+extension_dir = join_paths(get_option('datadir'), destination, 'extensions')
+pkgdata_dir = join_paths(get_option('prefix'), get_option('datadir'), package)
 
 subdir('data')
 subdir('po')
 
+
 install_data(
-  join_paths('src', meson.project_name() + '.py'),
+  [
+    join_paths('src', 'folder-icons', 'icons_select.py'),
+    join_paths('src', 'folder-icons', 'utils.py')
+  ],
+  install_dir: pkgdata_dir
+)
+
+# Configuration params
+conf = configuration_data()
+conf.set('DATADIR', pkgdata_dir)
+
+configure_file(
+  input: join_paths('src', file_manager, filename + '.in'),
+  output: filename,
+  configuration: conf,
   install_dir: extension_dir
 )

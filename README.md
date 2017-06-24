@@ -1,6 +1,6 @@
 # nautilus-folder-icons
 
-Nautilus extension that makes changing folders icons easy!
+Nautilus/Nemo extension that makes changing folders icons easy!
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/BilalELMoussaoui)
 
@@ -25,6 +25,11 @@ Nautilus extension that makes changing folders icons easy!
 - `nautilus-python`:
   - Archlinux : `python2-nautilus`
 
+#### For Nemo
+
+- `nemo-python`:
+  - Archlinux : `nemo-python`
+
 ### Building dependencies
 
 - `meson` >= `0.40.0`
@@ -34,6 +39,8 @@ Nautilus extension that makes changing folders icons easy!
 ## How to install
 
 ### Arch Linux
+
+#### Nautilus
 
 ```bash
 yaourt -S nautilus-folder-icons
@@ -54,14 +61,15 @@ git clone https://github.com/bil-elmoussaoui/nautilus-folder-icons
 
 ```bash
 cd nautilus-folder-icons
-meson builddir --prefix=/usr
+meson builddir --prefix=/usr -Dfile_manager=[nautilus|nemo]
 sudo ninja -C builddir install
 ```
 
-4- Restart Nautilus
+4- Restart Nautilus/Nemo
 
 ```bash
 nautilus -q
+nemo -q
 ```
 
 ## How to uninstall
