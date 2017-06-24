@@ -19,7 +19,7 @@ along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
 from gettext import gettext as _
 from gettext import textdomain
-from os import environ, path
+from os import path
 from sys import path as sys_path
 
 from gi import require_version
@@ -29,9 +29,7 @@ from gi.repository import GObject, Gtk, Nemo
 
 
 textdomain('nautilus-folder-icons')
-
-environ["DATA_DIR"] = "@DATADIR@"
-sys_path.insert(0, environ["DATA_DIR"])
+sys_path.insert(0, "@DATADIR@")
 from utils import change_folder_icon, uriparse
 
 
@@ -75,8 +73,8 @@ class NemoFolderIcons(GObject.GObject, Nemo.MenuProvider):
             folders.append(folder)
 
         item = Nemo.MenuItem(name='NemoPython::change_folder_icon',
-                                 label=_('Folder Icon'),
-                                 tip=_('Change folder icon'))
+                             label=_('Folder Icon'),
+                             tip=_('Change folder icon'))
         item.connect('activate', self._chagne_folder_icon, folders, window)
         return [item]
 

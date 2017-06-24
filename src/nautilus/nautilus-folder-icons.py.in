@@ -19,7 +19,7 @@ along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
 from gettext import gettext as _
 from gettext import textdomain
-from os import environ, path
+from os import path
 from sys import path as sys_path
 
 from gi import require_version
@@ -27,11 +27,9 @@ require_version("Gtk", "3.0")
 require_version("Nautilus", "3.0")
 from gi.repository import GObject, Gtk, Nautilus
 
-
 textdomain('nautilus-folder-icons')
+sys_path.insert(0, "@DATADIR@")
 
-environ["DATA_DIR"] = "@DATADIR@"
-sys_path.insert(0, environ["DATA_DIR"])
 from utils import change_folder_icon, uriparse
 
 

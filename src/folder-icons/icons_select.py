@@ -18,8 +18,6 @@ You should have received a copy of the GNU General Public License
 along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
 from gettext import gettext as _
-from os import environ
-from sys import path as sys_path
 
 from gi import require_version
 require_version("Gtk", "3.0")
@@ -27,8 +25,6 @@ from gi.repository import GdkPixbuf, Gio, GObject, Gtk
 
 from utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon,
                    get_ext, is_path, uriparse)
-
-sys_path.insert(0, environ.get("DATA_DIR"))
 
 
 class FolderIconChooser(Gtk.Window, GObject.GObject):
