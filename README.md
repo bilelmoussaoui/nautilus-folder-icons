@@ -46,7 +46,6 @@ Nautilus/Nemo extension that makes changing folders icons easy!
 yaourt -S nautilus-folder-icons
 ```
 
-
 ### Manual installation
 
 1- Install requirements

@@ -1,1 +1,1 @@
-option('file_manager', type : 'combo', choices : ['nautilus', 'nemo'], value : 'nautilus')
+option('file_manager', type: 'combo', choices: ['nautilus', 'nemo'], value: 'nautilus')

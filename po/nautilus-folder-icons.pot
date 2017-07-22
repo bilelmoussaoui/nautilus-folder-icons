@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nautilus-folder-icons\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-24 19:16+0200\n"
+"POT-Creation-Date: 2017-07-23 00:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,36 +33,32 @@ msgstr ""
 msgid "Bilal Elmoussaoui"
 msgstr ""
 
-#: src/folder-icons/icons_select.py:58
+#: src/folder-icons/icons_select.py:61
 msgid "Icon Chooser"
 msgstr ""
 
-#: src/folder-icons/icons_select.py:63
-msgid "Number of folders: {}"
-msgstr ""
-
-#: src/folder-icons/icons_select.py:69
+#: src/folder-icons/icons_select.py:78
 msgid "Apply"
 msgstr ""
 
-#: src/folder-icons/icons_select.py:76
+#: src/folder-icons/icons_select.py:85
 msgid "Cancel"
 msgstr ""
 
-#: src/folder-icons/icons_select.py:162
+#: src/folder-icons/icons_select.py:170
 msgid "Select an icon"
 msgstr ""
 
-#: src/folder-icons/icons_select.py:168
+#: src/folder-icons/icons_select.py:176
 msgid "Image files"
 msgstr ""
 
-#: src/nautilus/nautilus-folder-icons.py.in:78
-#: src/nemo/nemo-folder-icons.py.in:78
+#: src/nautilus/nautilus-folder-icons.py.in:76
+#: src/nemo/nemo-folder-icons.py.in:76
 msgid "Folder Icon"
 msgstr ""
 
-#: src/nautilus/nautilus-folder-icons.py.in:79
-#: src/nemo/nemo-folder-icons.py.in:79
+#: src/nautilus/nautilus-folder-icons.py.in:77
+#: src/nemo/nemo-folder-icons.py.in:77
 msgid "Change folder icon"
 msgstr ""

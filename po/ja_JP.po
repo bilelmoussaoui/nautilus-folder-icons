@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nautilus-folder-icons\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-24 19:16+0200\n"
+"POT-Creation-Date: 2017-07-23 00:39+0200\n"
 "PO-Revision-Date: 2017-06-17 09:31+0900\n"
 "Last-Translator: HRKo <ootaharuki99@gmail.com>\n"
 "Language-Team: \n"
@@ -34,36 +34,35 @@ msgstr "フォルダのアイコンの変更を簡単にする Nautilus 拡張�
 msgid "Bilal Elmoussaoui"
 msgstr "Bilal Elmoussaoui"
 
-#: src/folder-icons/icons_select.py:58
+#: src/folder-icons/icons_select.py:61
 msgid "Icon Chooser"
 msgstr "アイコンの変更"
 
-#: src/folder-icons/icons_select.py:63
-msgid "Number of folders: {}"
-msgstr "フォルダ数: {}"
-
-#: src/folder-icons/icons_select.py:69
+#: src/folder-icons/icons_select.py:78
 msgid "Apply"
 msgstr "適用"
 
-#: src/folder-icons/icons_select.py:76
+#: src/folder-icons/icons_select.py:85
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: src/folder-icons/icons_select.py:162
+#: src/folder-icons/icons_select.py:170
 msgid "Select an icon"
 msgstr "アイコンの選択"
 
-#: src/folder-icons/icons_select.py:168
+#: src/folder-icons/icons_select.py:176
 msgid "Image files"
 msgstr ""
 
-#: src/nautilus/nautilus-folder-icons.py.in:78
-#: src/nemo/nemo-folder-icons.py.in:78
+#: src/nautilus/nautilus-folder-icons.py.in:76
+#: src/nemo/nemo-folder-icons.py.in:76
 msgid "Folder Icon"
 msgstr "アイコンの変更…"
 
-#: src/nautilus/nautilus-folder-icons.py.in:79
-#: src/nemo/nemo-folder-icons.py.in:79
+#: src/nautilus/nautilus-folder-icons.py.in:77
+#: src/nemo/nemo-folder-icons.py.in:77
 msgid "Change folder icon"
 msgstr "フォルダアイコン変更"
+
+#~ msgid "Number of folders: {}"
+#~ msgstr "フォルダ数: {}"

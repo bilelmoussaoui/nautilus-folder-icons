@@ -30,26 +30,26 @@ SUPPORTED_EXTS = [".svg", ".png"]
 
 
 class Image(Gtk.Image):
-
+    SIZE = 48
     def __init__(self):
         Gtk.Image.__init__(self)
 
     def set_icon(self, icon_name):
         icon_name = uriparse(icon_name)
-        if is_path(icon_name):
-            # Make sure the icon name doesn't contain any special char
-            ext = get_ext(icon_name)
-            # Be sure that the icon still exists on the system
-            if path.exists(icon_name) and ext in SUPPORTED_EXTS:
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
-                                                                 48, 48, True)
-                self.set_from_pixbuf(pixbuf)
-            else:
-                self.set_from_icon_name("image-missing",
-                                        Gtk.IconSize.DIALOG)
+        theme = Gtk.IconTheme.get_default()
+        # Make sure the icon name doesn't contain any special char
+        # Be sure that the icon still exists on the system
+        if (is_path(icon_name) and path.exists(icon_name)
+            and get_ext(icon_name) in SUPPORTED_EXTS):
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
+                                                             Image.SIZE, Image.SIZE,
+                                                             True)
+        elif theme.has_icon(icon_name):
+            pixbuf = theme.load_icon_for_scale(icon_name, Image.SIZE, 1, 0)
         else:
-            self.set_from_icon_name(icon_name,
-                                    Gtk.IconSize.DIALOG)
+            pixbuf = theme.load_icon_for_scale("image-missing", Image.SIZE, 1, 0)
+
+        self.set_from_pixbuf(pixbuf)
 
 
 def get_default_icon(directory):
@@ -83,13 +83,29 @@ def set_folder_icon(folder, icon):
     ginfo = gfile.query_info("metadata::*",
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
     # In case the icon is a path & not an icon name
+    set_symbolic = False
     if is_path(icon):
         prop, unset_prop = unset_prop, prop
         icon = "file://{}".format(icon)
+    else:  # Makes sure we have a fallback icon.
+        symbolic_icon = "{}-symbolic".format(icon)
+        if has_icon(symbolic_icon):
+            set_symbolic = True
 
     # Set the new icon name
     ginfo.set_attribute_string(prop, icon)
     ginfo.set_attribute_status(prop, Gio.FileAttributeStatus.SET)
+
+    # Set the symbolic icon if exists.
+    if set_symbolic and symbolic_icon:
+        ginfo.set_attribute_string('metadata::symbolic-icon', symbolic_icon)
+        ginfo.set_attribute_status(
+            'metadata::symbolic-icon', Gio.FileAttributeStatus.SET)
+    elif ginfo.has_attribute('metadata::symbolic-icon'):
+        # Unset the attribute otherwise
+        ginfo.set_attribute("metadata::symbolic-icon",
+                            Gio.FileAttributeType.INVALID, 0)
+
     # Unset the other attribute
     if ginfo.has_attribute(unset_prop):
         ginfo.set_attribute(unset_prop,
@@ -123,7 +139,7 @@ def filter_folders(icon):
     """Filter icons to only show folder ones."""
     icon = icon.lower()
     return (icon.startswith("folder")
-            and not icon.endswith("-symbolic"))
+            and not icon.endswith("symbolic"))
 
 
 def uriparse(uri):
@@ -141,3 +157,8 @@ def is_path(icon):
 def get_ext(filepath):
     """Returns file extension."""
     return path.splitext(filepath)[1].lower()
+
+
+def has_icon(icon_name):
+    theme = Gtk.IconTheme.get_default()
+    return theme.has_icon(icon_name)

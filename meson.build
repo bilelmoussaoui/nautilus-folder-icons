@@ -10,14 +10,16 @@ if file_manager == 'nautilus'
   package = 'nautilus-folder-icons'
   destination = 'nautilus-python'
   filename = 'nautilus-folder-icons.py'
+  message('File Manager: Nautilus')
 elif file_manager == 'nemo'
   package = 'nemo-folder-icons'
   destination = 'nemo-python'
   filename = 'nemo-folder-icons.py'
+  message('File Manager: Nemo')
 endif
 
 extension_dir = join_paths(get_option('datadir'), destination, 'extensions')
-pkgdata_dir = join_paths(get_option('prefix'), get_option('datadir'), package)
+pkgdata_dir = join_paths(get_option('datadir'), package)
 
 subdir('data')
 subdir('po')

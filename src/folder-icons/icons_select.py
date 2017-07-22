@@ -18,13 +18,16 @@ You should have received a copy of the GNU General Public License
 along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
 from gettext import gettext as _
+from os import path
 
 from gi import require_version
 require_version("Gtk", "3.0")
-from gi.repository import GdkPixbuf, Gio, GObject, Gtk
+from gi.repository import GdkPixbuf, Gio, GObject, Gtk, Pango
 
 from utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon,
                    get_ext, is_path, uriparse)
+
+
 
 
 class FolderIconChooser(Gtk.Window, GObject.GObject):
@@ -39,6 +42,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject):
         self._folders = folders
         # Window configurations
         self.set_default_size(350, 150)
+        self.set_size_request(350, 150)
         self.set_border_width(18)
         self.set_resizable(False)
         self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
@@ -51,15 +55,24 @@ class FolderIconChooser(Gtk.Window, GObject.GObject):
     def _build_header_bar(self):
         # Header bar
         headerbar = Gtk.HeaderBar()
-        headerbar.set_title(_("Icon Chooser"))
-        counter = len(self._folders)
-        if counter == 1:
-            subtitle = self._folders[0]
-        else:
-            subtitle = _("Number of folders: {}").format(str(counter))
-        headerbar.set_subtitle(subtitle)
-        headerbar.set_show_close_button(False)
+        headerbar_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
 
+        title = Gtk.Label()
+        title.set_text(_("Icon Chooser"))
+        title.get_style_context().add_class("title")
+        headerbar_container.pack_start(title, False, False, 0)
+
+        subtitle = Gtk.Label()
+        subtitle.get_style_context().add_class("subtitle")
+        subtitle_text = ", ".join(self._folders)
+        subtitle.set_text(subtitle_text)
+        subtitle.set_ellipsize(Pango.EllipsizeMode.END)
+        subtitle.set_tooltip_text(subtitle_text)
+        subtitle.props.max_width_chars = 30
+        headerbar_container.pack_start(subtitle, False, False, 0)
+
+        headerbar.set_custom_title(headerbar_container)
+        headerbar.set_show_close_button(False)
         # Apply Button
         self._apply_button = Gtk.Button()
         self._apply_button.set_label(_("Apply"))
@@ -77,8 +90,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject):
         self.set_titlebar(headerbar)
 
     def _build_content(self):
-        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                            spacing=6)
+        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         container.set_halign(Gtk.Align.CENTER)
         container.set_valign(Gtk.Align.CENTER)
 
