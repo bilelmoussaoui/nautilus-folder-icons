@@ -3,7 +3,6 @@
 Change your nautilus directories icons easily
 
 Author : Bilal Elmoussaoui (bil.elmoussaoui@gmail.com)
-Version : 2.0
 Website : https://github.com/bil-elmoussaoui/nautilus-folder-icons
 Licence : GPL-3.0
 nautilus-folder-icons is free software: you can redistribute it and/or

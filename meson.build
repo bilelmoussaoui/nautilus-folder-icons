@@ -1,6 +1,9 @@
 project('nautilus-folder-icons',
-  version: '1.2',
-  meson_version: '>= 0.40.0'
+  version: '2.1',
+  meson_version: '>= 0.40.0',
+  default_options: [
+    'prefix=/usr'
+  ]
 )
 
 i18n = import('i18n')
