@@ -3,7 +3,8 @@ project('nautilus-folder-icons',
   meson_version: '>= 0.40.0',
   default_options: [
     'prefix=/usr'
-  ]
+  ],
+  license: 'GPL-3.0'
 )
 
 i18n = import('i18n')
