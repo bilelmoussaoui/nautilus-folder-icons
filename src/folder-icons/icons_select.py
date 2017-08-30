@@ -23,10 +23,8 @@ from gi import require_version
 require_version("Gtk", "3.0")
 from gi.repository import GdkPixbuf, Gio, GObject, Gtk, Pango
 
-from utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon,
-                   get_ext, is_path, uriparse)
-
-
+from icons_utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon,
+                         get_ext, is_path, uriparse)
 
 
 class FolderIconChooser(Gtk.Window, GObject.GObject):
@@ -54,7 +52,8 @@ class FolderIconChooser(Gtk.Window, GObject.GObject):
     def _build_header_bar(self):
         # Header bar
         headerbar = Gtk.HeaderBar()
-        headerbar_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
+        headerbar_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                      spacing=3)
 
         title = Gtk.Label()
         title.set_text(_("Icon Chooser"))
@@ -110,26 +109,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject):
         self._icon_entry.grab_focus_without_selecting()
 
         # Icon Completion
-        completion = Gtk.EntryCompletion()
-        model = Gtk.ListStore(str, GdkPixbuf.Pixbuf)
-        # List all the places icons
-        theme = Gtk.IconTheme.get_default()
-        icons = theme.list_icons('Places')
-        folders = list(filter(filter_folders, icons))
-        folders.sort()
-        # Fill in the model (str: icon path, pixbuf)
-        for folder in folders:
-            icon = theme.load_icon(folder, 24, 0)
-            model.append([folder, icon])
-
-        pixbuf = Gtk.CellRendererPixbuf()
-        completion.pack_start(pixbuf, False)
-        completion.add_attribute(pixbuf, 'pixbuf', 1)
-        completion.set_model(model)
-        completion.set_text_column(0)
-        completion.set_popup_set_width(True)
-        completion.set_popup_single_match(True)
-        completion.set_match_func(self._filter_func)
+        completion = self._setup_completion()
         self._icon_entry.set_completion(completion)
 
         # Icon file selector
@@ -152,6 +132,33 @@ class FolderIconChooser(Gtk.Window, GObject.GObject):
     def _filter_func(self, completion, data, iterr):
         model = completion.get_model()
         return data in model[iterr][0]
+
+
+    def _setup_completion(self):
+        """Create a Gtk.EntryCompletion with all the data."""
+        completion = Gtk.EntryCompletion()
+        model = Gtk.ListStore(str, GdkPixbuf.Pixbuf)
+        # List all the places icons
+        theme = Gtk.IconTheme.get_default()
+        icons = theme.list_icons('Places')
+        folders = list(filter(filter_folders, icons))
+        folders.sort()
+        # Fill in the model (str: icon path, pixbuf)
+        for folder in folders:
+            icon = theme.load_icon(folder, 24, 0)
+            # Force the icon to be 24x24
+            icon = icon.scale_simple(24, 24, GdkPixbuf.InterpType.BILINEAR)
+            model.append([folder, icon])
+
+        pixbuf = Gtk.CellRendererPixbuf()
+        completion.pack_start(pixbuf, False)
+        completion.add_attribute(pixbuf, 'pixbuf', 1)
+        completion.set_model(model)
+        completion.set_text_column(0)
+        completion.set_popup_set_width(True)
+        completion.set_popup_single_match(True)
+        completion.set_match_func(self._filter_func)
+        return completion
 
     def _setup_accels(self):
         self._accels = Gtk.AccelGroup()

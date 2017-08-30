@@ -28,9 +28,9 @@ require_version("Nautilus", "3.0")
 from gi.repository import GObject, Gtk, Nautilus
 
 textdomain('nautilus-folder-icons')
-sys_path.insert(0, "@DATADIR@")
+sys_path.insert(0, "@DATA_DIR@")
 
-from utils import change_folder_icon, uriparse
+from icons_utils import change_folder_icon, uriparse
 
 
 class OpenFolderIconProvider(GObject.GObject,

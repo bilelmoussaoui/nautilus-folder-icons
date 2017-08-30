@@ -30,6 +30,7 @@ SUPPORTED_EXTS = [".svg", ".png"]
 
 class Image(Gtk.Image):
     SIZE = 48
+
     def __init__(self):
         Gtk.Image.__init__(self)
 
@@ -39,15 +40,15 @@ class Image(Gtk.Image):
         # Make sure the icon name doesn't contain any special char
         # Be sure that the icon still exists on the system
         if (is_path(icon_name) and path.exists(icon_name)
-            and get_ext(icon_name) in SUPPORTED_EXTS):
+                and get_ext(icon_name) in SUPPORTED_EXTS):
             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
                                                              Image.SIZE, Image.SIZE,
                                                              True)
         elif theme.has_icon(icon_name):
             pixbuf = theme.load_icon_for_scale(icon_name, Image.SIZE, 1, 0)
         else:
-            pixbuf = theme.load_icon_for_scale("image-missing", Image.SIZE, 1, 0)
-
+            pixbuf = theme.load_icon_for_scale("image-missing",
+                                               Image.SIZE, 1, 0)
         self.set_from_pixbuf(pixbuf)
 
 

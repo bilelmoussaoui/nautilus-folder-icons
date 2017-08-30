@@ -29,8 +29,8 @@ from gi.repository import GObject, Gtk, Nemo
 
 
 textdomain('nautilus-folder-icons')
-sys_path.insert(0, "@DATADIR@")
-from utils import change_folder_icon, uriparse
+sys_path.insert(0, "@DATA_DIR@")
+from icons_utils import change_folder_icon, uriparse
 
 
 class OpenFolderIconProvider(GObject.GObject,
