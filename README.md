@@ -10,9 +10,9 @@ Nautilus/Nemo extension that makes changing folders icons easy!
 
 ## Shortcuts
 
-- `Escape` To close the window
-- `Return` To select the new folder icon
-- `<Shift><Ctrl>S` To open the folder icon selector on the current folder
+- <kbd>Escape</kbd> To close the window
+- <kbd>Return</kbd> To select the new folder icon
+- <kbd>Shift</kbd>+<kbd>Ctrl</kbd>+<kbd>S</kbd> To open the folder icon selector on the current folder
 
 ## Requirements
 
