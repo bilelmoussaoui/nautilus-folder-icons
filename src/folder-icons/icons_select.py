@@ -56,7 +56,7 @@ class FolderBox(Gtk.Box):
 
 class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
     __gsignals__ = {
-        'icon_selected': (GObject.SIGNAL_RUN_LAST, None, (str, )),
+        'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, )),
         'loaded': (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -67,6 +67,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         # Here i assume that all folders got the same icon...
         self._folders = folders
         self.model = []
+        self._flowbox = Gtk.FlowBox()
 
         # Threading stuff
         self.setDaemon(True)
@@ -142,7 +143,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         # Cancel Button
         cancel_button = Gtk.Button()
         cancel_button.set_label(_("Cancel"))
-        cancel_button.connect("clicked", self._close_window)
+        cancel_button.connect("clicked", self.close_window)
 
         headerbar.pack_start(cancel_button)
         headerbar.pack_end(self._apply_button)
@@ -177,7 +178,6 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        self._flowbox = Gtk.FlowBox()
         self._flowbox.connect("selected-children-changed", self._on_select)
         self._flowbox.set_valign(Gtk.Align.START)
         self._flowbox.set_max_children_per_line(10)
@@ -197,7 +197,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
         key, mod = Gtk.accelerator_parse("Escape")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
-                             self._close_window)
+                             self.close_window)
 
         key, mod = Gtk.accelerator_parse("Return")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
@@ -220,14 +220,13 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
     def _do_select(self, *args):
         if self._apply_button.get_sensitive():
-            self.emit("icon_selected", self._get_selected_icon())
-            self._close_window()
+            self.emit("selected", self._get_selected_icon())
 
     def _on_search(self, *args):
         data = self._search_entry.get_text().strip()
         self._flowbox.set_filter_func(self._filter_func, data, True)
 
-    def _close_window(self, *args):
+    def close_window(self, *args):
         self.destroy()
 
     def _toggle_search(self, *args):

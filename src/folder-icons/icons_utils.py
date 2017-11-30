@@ -121,20 +121,20 @@ def change_folder_icon(folders, window):
     """Change default folder icon."""
     from icons_select import FolderIconChooser
 
-    def set_icon(*args):
+    def set_icon(icon_window, icon_name):
         """Set the folder icon & refresh Nautilus's view."""
-        icon_name = args[1]
         for folder in folders:
             set_folder_icon(folder, icon_name)
         # Refresh Nautilus (doesn't work on Nemo...)
         if window.has_action("reload"):
             action = window.lookup_action("reload")
             action.emit("activate", None)
+        icon_window.close_window()
     # Show Icon Chooser window
-    icon = FolderIconChooser(folders)
-    icon.set_transient_for(window)
-    icon.connect("icon_selected", set_icon)
-    icon.show_all()
+    icon_window = FolderIconChooser(folders)
+    icon_window.set_transient_for(window)
+    icon_window.connect("selected", set_icon)
+    icon_window.show_all()
 
 
 def filter_folders(icon):
