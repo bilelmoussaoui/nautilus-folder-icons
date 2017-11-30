@@ -28,7 +28,6 @@ from icons_utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon
                          get_ext, is_path, uriparse)
 
 
-
 class FolderBox(Gtk.Box):
 
     def __init__(self, icon_name):
@@ -53,7 +52,6 @@ class FolderBox(Gtk.Box):
         self.pack_start(label, False, False, 6)
 
 
-
 class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
     __gsignals__ = {
         'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, )),
@@ -74,8 +72,8 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self.run()
 
         # Window configurations
-        self.set_default_size(650, 400)
-        self.set_size_request(650, 400)
+        self.set_default_size(650, 500)
+        self.set_size_request(650, 500)
         self.set_resizable(True)
         self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
 
@@ -158,9 +156,9 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._search_bar.set_show_close_button(True)
 
         self._search_btn.bind_property("active",
-                                        self._search_bar,
-                                        "search-mode-enabled",
-                                        1)
+                                       self._search_bar,
+                                       "search-mode-enabled",
+                                       1)
 
         self._search_entry = Gtk.SearchEntry()
         self._search_entry.connect("search-changed", self._on_search)
@@ -174,22 +172,22 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._default_icon = get_default_icon(self._folders[0])
         self._preview.set_icon(self._default_icon)
 
-
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
         self._flowbox.connect("selected-children-changed", self._on_select)
         self._flowbox.set_valign(Gtk.Align.START)
-        self._flowbox.set_max_children_per_line(10)
+        self._flowbox.set_row_spacing(0)
+        self._flowbox.set_min_children_per_line(4)
+        self._flowbox.set_max_children_per_line(12)
         self._flowbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
 
         scrolled.add(self._flowbox)
 
-        container.pack_start(self._preview, False, False, 6)
-        container.pack_start(scrolled, True, True, 6)
+        container.pack_start(self._preview, False, False, 0)
+        container.pack_start(scrolled, True, True, 0)
 
         self.add(container)
-
 
     def _setup_accels(self):
         self._accels = Gtk.AccelGroup()
@@ -205,8 +203,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
         key, mod = Gtk.accelerator_parse("<Control>F")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
-                            self._toggle_search)
-
+                             self._toggle_search)
 
     def _get_selected_icon(self):
         selected_child = self._flowbox.get_selected_children()[0].get_child()
@@ -230,7 +227,8 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self.destroy()
 
     def _toggle_search(self, *args):
-        self._search_bar.set_search_mode(not self._search_bar.get_search_mode())
+        self._search_bar.set_search_mode(
+            not self._search_bar.get_search_mode())
 
     def _filter_func(self, row, data, notify_destroy):
         folder_icon_name = row.get_child().name
