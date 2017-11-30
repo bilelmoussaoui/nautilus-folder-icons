@@ -56,7 +56,7 @@ class FolderBox(Gtk.Box):
 
 class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
     __gsignals__ = {
-        'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, )),
+        'icon_selected': (GObject.SIGNAL_RUN_LAST, None, (str, )),
         'loaded': (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -124,13 +124,6 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         subtitle.props.max_width_chars = 30
         headerbar_container.pack_start(subtitle, False, False, 0)
 
-        self._search_btn = Gtk.ToggleButton()
-        search_icn = Gio.ThemedIcon(name="system-search-symbolic")
-        search_img = Gtk.Image.new_from_gicon(search_icn, Gtk.IconSize.BUTTON)
-        self._search_btn.set_image(search_img)
-        self._search_btn.connect("clicked", self._toggle_search)
-        headerbar.pack_end(self._search_btn)
-
         headerbar.set_custom_title(headerbar_container)
         headerbar.set_show_close_button(False)
         # Apply Button
@@ -140,6 +133,12 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._apply_button.get_style_context().add_class("suggested-action")
         self._apply_button.connect("clicked", self._do_select)
 
+        # Search Button
+        self._search_btn = Gtk.ToggleButton()
+        search_icn = Gio.ThemedIcon(name="system-search-symbolic")
+        search_img = Gtk.Image.new_from_gicon(search_icn, Gtk.IconSize.BUTTON)
+        self._search_btn.set_image(search_img)
+
         # Cancel Button
         cancel_button = Gtk.Button()
         cancel_button.set_label(_("Cancel"))
@@ -147,14 +146,26 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
         headerbar.pack_start(cancel_button)
         headerbar.pack_end(self._apply_button)
+        headerbar.pack_end(self._search_btn)
         self.set_titlebar(headerbar)
 
     def _build_content(self):
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
+        # Search bar
         self._search_bar = Gtk.SearchBar()
-        self._search_bar.set_search_mode(False)
         self._search_bar.set_show_close_button(True)
+
+        self._search_btn.bind_property("active",
+                                        self._search_bar,
+                                        "search-mode-enabled",
+                                        1)
+
+        self._search_entry = Gtk.SearchEntry()
+        self._search_entry.connect("search-changed", self._on_search)
+        self._search_bar.add(self._search_entry)
+        self._search_bar.connect_entry(self._search_entry)
+
         container.pack_start(self._search_bar, False, False, 0)
 
         # Preview image
@@ -192,45 +203,40 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
                              self._do_select)
 
+        key, mod = Gtk.accelerator_parse("<Control>F")
+        self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
+                            self._toggle_search)
 
-    def _on_select(self, *args):
+
+    def _get_selected_icon(self):
         selected_child = self._flowbox.get_selected_children()[0].get_child()
         icon_name = selected_child.name
+        return icon_name
+
+    def _on_select(self, *args):
+        icon_name = self._get_selected_icon()
         self._preview.set_icon(icon_name)
         self._apply_button.set_sensitive(True)
 
-
-    def _refresh_preview(self, combo):
-        """icon_name = uriparse(self._get_selected_icon().strip())
-        if icon_name:
-            combo.get_child().set_text(icon_name)        
-        # Fallback to the default icon
-        if not icon_name:
-            icon_name = self._default_icon
-        # No need to set the same icon again?
-        exists = False
-        if is_path(icon_name):
-            ext = get_ext(icon_name)
-            exists = (path.exists(icon_name)
-                      and ext in SUPPORTED_EXTS)
-        else:
-            theme = Gtk.IconTheme.get_default()
-            exists = theme.has_icon(icon_name)
-        self._apply_button.set_sensitive(exists and icon_name)
-        if exists:
-            self._preview.set_icon(icon_name)
-        else:
-            self._preview.set_icon("image-missing")
-        """
-        pass
-
     def _do_select(self, *args):
         if self._apply_button.get_sensitive():
-            #self.emit("selected", self._get_selected_icon())
+            self.emit("icon_selected", self._get_selected_icon())
             self._close_window()
+
+    def _on_search(self, *args):
+        data = self._search_entry.get_text().strip()
+        self._flowbox.set_filter_func(self._filter_func, data, True)
 
     def _close_window(self, *args):
         self.destroy()
 
     def _toggle_search(self, *args):
         self._search_bar.set_search_mode(not self._search_bar.get_search_mode())
+
+    def _filter_func(self, row, data, notify_destroy):
+        folder_icon_name = row.get_child().name
+        data = data.lower()
+        if len(data) > 0:
+            return data in folder_icon_name
+        else:
+            return True

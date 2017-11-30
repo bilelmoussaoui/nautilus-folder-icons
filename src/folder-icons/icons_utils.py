@@ -29,10 +29,11 @@ SUPPORTED_EXTS = [".svg", ".png"]
 
 
 class Image(Gtk.Image):
-    SIZE = 48
+    SIZE = 96
 
     def __init__(self):
         Gtk.Image.__init__(self)
+        self.props.icon_size = Image.SIZE
 
     def set_icon(self, icon_name):
         icon_name = uriparse(icon_name)
@@ -132,7 +133,7 @@ def change_folder_icon(folders, window):
     # Show Icon Chooser window
     icon = FolderIconChooser(folders)
     icon.set_transient_for(window)
-    icon.connect("selected", set_icon)
+    icon.connect("icon_selected", set_icon)
     icon.show_all()
 
 
