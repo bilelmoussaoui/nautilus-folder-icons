@@ -79,8 +79,27 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         return False
 
     def do_loaded(self):
-        self._completion.set_model(self.model)
-        self._completion.set_match_func(self._filter_func)
+        self._icon_entry.set_model(self.model)
+        active_id = 0
+        found = False
+        default_icon = self._default_icon if self._default_icon else "folder"
+        print(self._default_icon, default_icon)
+
+        for tree_row in self.model:
+            icon_name = tree_row[0]
+
+            if icon_name == default_icon:
+                found = True
+
+            if icon_name != default_icon and not found:
+                active_id += 1
+
+        if not found:
+            active_id = 0
+        
+        self._icon_entry.set_active_id(str(active_id))
+        self._icon_entry.get_child().set_text(default_icon)
+        #self._completion.set_match_func(self._filter_func)
 
     def _build_header_bar(self):
         # Header bar
@@ -133,23 +152,20 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         hz_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                                spacing=6)
         # Icon name entry
-        self._icon_entry = Gtk.Entry()
-        if self._default_icon:
-            self._icon_entry.set_text(self._default_icon)
-        else:
-            self._icon_entry.set_text("folder")
-        self._icon_entry.connect("changed", self._refresh_preview)
-        self._icon_entry.grab_focus_without_selecting()
+        self._icon_entry = Gtk.ComboBox.new_with_entry()
+        self._icon_entry.set_row_span_column(2)
 
-        # Icon Completion
-        self._completion = Gtk.EntryCompletion()
-        self._completion.set_text_column(0)
-        self._completion.set_popup_set_width(True)
-        self._completion.set_popup_single_match(True)
-        pixbuf = Gtk.CellRendererPixbuf()
-        self._completion.pack_start(pixbuf, False)
-        self._completion.add_attribute(pixbuf, 'pixbuf', 1)
-        self._icon_entry.set_completion(self._completion)
+        #  Folder icon
+        renderer_pixbuf = Gtk.CellRendererPixbuf()
+        self._icon_entry.pack_start(renderer_pixbuf, False)
+        self._icon_entry.add_attribute(renderer_pixbuf, 'pixbuf', 1)
+        # Folder icon name
+        renderer_text = Gtk.CellRendererText()
+        self._icon_entry.pack_start(renderer_text, True)
+        self._icon_entry.add_attribute(renderer_text, "text", 0)
+
+        self._icon_entry.connect("changed", self._refresh_preview)
+        self._icon_entry.get_child().grab_focus_without_selecting()
 
         # Icon file selector
         select_file = Gtk.Button()
@@ -202,9 +218,20 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
             self._icon_entry.set_text(icon_path)
         dialog.destroy()
 
-    def _refresh_preview(self, entry):
-        icon_name = uriparse(entry.get_text().strip())
-        entry.set_text(icon_name)
+    def _get_selected_icon(self):
+        tree_iter = self._icon_entry.get_active_iter()
+        if tree_iter != None:
+            model = self._icon_entry.get_model()
+            icon_name = model[tree_iter][0]
+        else:
+            entry = self._icon_entry.get_child()
+            icon_name = entry.get_text()
+        return icon_name
+
+    def _refresh_preview(self, combo):
+        icon_name = uriparse(self._get_selected_icon().strip())
+        if icon_name:
+            combo.get_child().set_text(icon_name)        
         # Fallback to the default icon
         if not icon_name:
             icon_name = self._default_icon
@@ -225,7 +252,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
     def _do_select(self, *args):
         if self._apply_button.get_sensitive():
-            self.emit("selected", self._icon_entry.get_text())
+            self.emit("selected", self._get_selected_icon())
             self._close_window()
 
     def _close_window(self, *args):
