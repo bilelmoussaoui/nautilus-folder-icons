@@ -28,6 +28,32 @@ from icons_utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon
                          get_ext, is_path, uriparse)
 
 
+
+class FolderBox(Gtk.Box):
+
+    def __init__(self, icon_name):
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
+        self.name = icon_name
+        self._build_widget()
+        self.show()
+
+    def _build_widget(self):
+        theme = Gtk.IconTheme.get_default()
+        pixbuf = theme.load_icon(self.name, 48, 0)
+        # Force the icon to be 48x48
+        pixbuf = pixbuf.scale_simple(48, 48, GdkPixbuf.InterpType.BILINEAR)
+
+        image = Gtk.Image.new_from_pixbuf(pixbuf)
+        image.show()
+        self.pack_start(image, False, False, 6)
+
+        label = Gtk.Label()
+        label.set_text(self.name)
+        label.show()
+        self.pack_start(label, False, False, 6)
+
+
+
 class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
     __gsignals__ = {
         'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, )),
@@ -40,17 +66,16 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         Gtk.Window.__init__(self)
         # Here i assume that all folders got the same icon...
         self._folders = folders
-        self.model = None
+        self.model = []
 
         # Threading stuff
         self.setDaemon(True)
         self.run()
 
         # Window configurations
-        self.set_default_size(350, 150)
-        self.set_size_request(350, 150)
-        self.set_border_width(18)
-        self.set_resizable(False)
+        self.set_default_size(650, 400)
+        self.set_size_request(650, 400)
+        self.set_resizable(True)
         self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
 
         # Widgets & Accelerators
@@ -63,7 +88,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
     def run(self):
         # Load the completion entries
-        self.model = Gtk.ListStore(str, GdkPixbuf.Pixbuf)
+        self.model = []
         # List all the places icons
         theme = Gtk.IconTheme.get_default()
         icons = theme.list_icons('Places')
@@ -71,35 +96,13 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         folders.sort()
         # Fill in the model (str: icon path, pixbuf)
         for folder in folders:
-            icon = theme.load_icon(folder, 24, 0)
-            # Force the icon to be 24x24
-            icon = icon.scale_simple(24, 24, GdkPixbuf.InterpType.BILINEAR)
-            self.model.append([folder, icon])
+            self.model.append(folder)
         self.emit("loaded")
         return False
 
     def do_loaded(self):
-        self._icon_entry.set_model(self.model)
-        active_id = 0
-        found = False
-        default_icon = self._default_icon if self._default_icon else "folder"
-        print(self._default_icon, default_icon)
-
-        for tree_row in self.model:
-            icon_name = tree_row[0]
-
-            if icon_name == default_icon:
-                found = True
-
-            if icon_name != default_icon and not found:
-                active_id += 1
-
-        if not found:
-            active_id = 0
-        
-        self._icon_entry.set_active_id(str(active_id))
-        self._icon_entry.get_child().set_text(default_icon)
-        #self._completion.set_match_func(self._filter_func)
+        for folder in self.model:
+            self._flowbox.add(FolderBox(folder))
 
     def _build_header_bar(self):
         # Header bar
@@ -121,6 +124,13 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         subtitle.props.max_width_chars = 30
         headerbar_container.pack_start(subtitle, False, False, 0)
 
+        self._search_btn = Gtk.ToggleButton()
+        search_icn = Gio.ThemedIcon(name="system-search-symbolic")
+        search_img = Gtk.Image.new_from_gicon(search_icn, Gtk.IconSize.BUTTON)
+        self._search_btn.set_image(search_img)
+        self._search_btn.connect("clicked", self._toggle_search)
+        headerbar.pack_end(self._search_btn)
+
         headerbar.set_custom_title(headerbar_container)
         headerbar.set_show_close_button(False)
         # Apply Button
@@ -141,52 +151,34 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
     def _build_content(self):
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        container.set_halign(Gtk.Align.CENTER)
-        container.set_valign(Gtk.Align.CENTER)
+
+        self._search_bar = Gtk.SearchBar()
+        self._search_bar.set_search_mode(False)
+        self._search_bar.set_show_close_button(True)
+        container.pack_start(self._search_bar, False, False, 0)
 
         # Preview image
         self._preview = Image()
         self._default_icon = get_default_icon(self._folders[0])
         self._preview.set_icon(self._default_icon)
 
-        hz_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                               spacing=6)
-        # Icon name entry
-        self._icon_entry = Gtk.ComboBox.new_with_entry()
-        self._icon_entry.set_row_span_column(2)
 
-        #  Folder icon
-        renderer_pixbuf = Gtk.CellRendererPixbuf()
-        self._icon_entry.pack_start(renderer_pixbuf, False)
-        self._icon_entry.add_attribute(renderer_pixbuf, 'pixbuf', 1)
-        # Folder icon name
-        renderer_text = Gtk.CellRendererText()
-        self._icon_entry.pack_start(renderer_text, True)
-        self._icon_entry.add_attribute(renderer_text, "text", 0)
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        self._icon_entry.connect("changed", self._refresh_preview)
-        self._icon_entry.get_child().grab_focus_without_selecting()
+        self._flowbox = Gtk.FlowBox()
+        self._flowbox.connect("selected-children-changed", self._on_select)
+        self._flowbox.set_valign(Gtk.Align.START)
+        self._flowbox.set_max_children_per_line(10)
+        self._flowbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
 
-        # Icon file selector
-        select_file = Gtk.Button()
-        select_icon = Gio.ThemedIcon(name="document-open-symbolic")
-        select_image = Gtk.Image.new_from_gicon(select_icon,
-                                                Gtk.IconSize.BUTTON)
-        select_file.set_image(select_image)
-        select_file.get_style_context().add_class("flat")
-        select_file.connect("clicked", self._on_select_file)
-
-        hz_container.pack_start(self._icon_entry, False, False, 3)
-        hz_container.pack_start(select_file, False, False, 3)
+        scrolled.add(self._flowbox)
 
         container.pack_start(self._preview, False, False, 6)
-        container.pack_start(hz_container, False, False, 6)
+        container.pack_start(scrolled, True, True, 6)
 
         self.add(container)
 
-    def _filter_func(self, completion, data, iterr):
-        model = completion.get_model()
-        return data in model[iterr][0]
 
     def _setup_accels(self):
         self._accels = Gtk.AccelGroup()
@@ -200,36 +192,16 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
                              self._do_select)
 
-    def _on_select_file(self, *args):
-        dialog = Gtk.FileChooserDialog(_("Select an icon"), self,
-                                       Gtk.FileChooserAction.OPEN,
-                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
-        # Filter images
-        filter_images = Gtk.FileFilter()
-        filter_images.set_name(_("Image files"))
-        filter_images.add_mime_type("image/png")
-        filter_images.add_mime_type("image/svg+xml")
-        dialog.add_filter(filter_images)
 
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            icon_path = uriparse(dialog.get_uri())
-            self._icon_entry.set_text(icon_path)
-        dialog.destroy()
+    def _on_select(self, *args):
+        selected_child = self._flowbox.get_selected_children()[0].get_child()
+        icon_name = selected_child.name
+        self._preview.set_icon(icon_name)
+        self._apply_button.set_sensitive(True)
 
-    def _get_selected_icon(self):
-        tree_iter = self._icon_entry.get_active_iter()
-        if tree_iter != None:
-            model = self._icon_entry.get_model()
-            icon_name = model[tree_iter][0]
-        else:
-            entry = self._icon_entry.get_child()
-            icon_name = entry.get_text()
-        return icon_name
 
     def _refresh_preview(self, combo):
-        icon_name = uriparse(self._get_selected_icon().strip())
+        """icon_name = uriparse(self._get_selected_icon().strip())
         if icon_name:
             combo.get_child().set_text(icon_name)        
         # Fallback to the default icon
@@ -249,11 +221,16 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
             self._preview.set_icon(icon_name)
         else:
             self._preview.set_icon("image-missing")
+        """
+        pass
 
     def _do_select(self, *args):
         if self._apply_button.get_sensitive():
-            self.emit("selected", self._get_selected_icon())
+            #self.emit("selected", self._get_selected_icon())
             self._close_window()
 
     def _close_window(self, *args):
         self.destroy()
+
+    def _toggle_search(self, *args):
+        self._search_bar.set_search_mode(not self._search_bar.get_search_mode())
