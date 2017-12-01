@@ -28,15 +28,21 @@ from icons_utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon
                          get_ext, is_path, uriparse)
 
 
-class FolderBox(Gtk.Box):
+class FolderBox(Gtk.FlowBoxChild):
+    """
+    FloderBox with icon preview
+    """
 
     def __init__(self, icon_name):
-        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
+        Gtk.FlowBoxChild.__init__(self)
         self.name = icon_name
         self._build_widget()
         self.show()
 
     def _build_widget(self):
+        """Build the widgets."""
+        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        container.show()
         theme = Gtk.IconTheme.get_default()
         pixbuf = theme.load_icon(self.name, 48, 0)
         # Force the icon to be 48x48
@@ -44,15 +50,19 @@ class FolderBox(Gtk.Box):
 
         image = Gtk.Image.new_from_pixbuf(pixbuf)
         image.show()
-        self.pack_start(image, False, False, 6)
+        container.pack_start(image, False, False, 6)
 
         label = Gtk.Label()
         label.set_text(self.name)
         label.show()
-        self.pack_start(label, False, False, 6)
+        container.pack_start(label, False, False, 6)
+        self.add(container)
 
 
 class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
+    """
+        FolderIcon Chooser Class
+    """
     __gsignals__ = {
         'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, )),
         'loaded': (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -83,9 +93,11 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._setup_accels()
 
     def emit(self, *args):
+        # Use idle_add to make it possible to use emit within a Thread
         GLib.idle_add(GObject.GObject.emit, self, *args)
 
     def run(self):
+        """Threading run method."""
         # Load the completion entries
         self.model = []
         # List all the places icons
@@ -100,10 +112,13 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         return False
 
     def do_loaded(self):
+        """loaded signal handler."""
         for folder in self.model:
-            self._flowbox.add(FolderBox(folder))
+            child = FolderBox(folder)
+            self._flowbox.add(child)
 
     def _build_header_bar(self):
+        """Setup window headerbar."""
         # Header bar
         headerbar = Gtk.HeaderBar()
         headerbar_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
@@ -149,6 +164,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self.set_titlebar(headerbar)
 
     def _build_content(self):
+        """"Setup window content widges."""
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
         # Search bar
@@ -175,9 +191,11 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        self._flowbox.connect("selected-children-changed", self._on_select)
+        self._flowbox.connect("child-activated", self._on_select)
+        self._flowbox.connect("selected-children-changed", self._on_update_preview)
         self._flowbox.set_valign(Gtk.Align.START)
         self._flowbox.set_row_spacing(0)
+        self._flowbox.set_activate_on_single_click(False)
         self._flowbox.set_min_children_per_line(4)
         self._flowbox.set_max_children_per_line(12)
         self._flowbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
@@ -190,6 +208,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self.add(container)
 
     def _setup_accels(self):
+        """Setup accels."""
         self._accels = Gtk.AccelGroup()
         self.add_accel_group(self._accels)
 
@@ -206,34 +225,46 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
                              self._toggle_search)
 
     def _get_selected_icon(self):
-        selected_child = self._flowbox.get_selected_children()[0].get_child()
-        icon_name = selected_child.name
+        """Return the selected icon name."""
+        icon_name = self._flowbox.get_selected_children()[0].name
         return icon_name
 
     def _on_select(self, *args):
+        """Update the preview when a FlexBoxChild is activated."""
+        self._apply_button.set_sensitive(True)
+        self._do_select()
+
+    def _on_update_preview(self, *args):
         icon_name = self._get_selected_icon()
         self._preview.set_icon(icon_name)
-        self._apply_button.set_sensitive(True)
 
     def _do_select(self, *args):
+        """Apply buttion clicked signal handler."""
         if self._apply_button.get_sensitive():
             self.emit("selected", self._get_selected_icon())
 
     def _on_search(self, *args):
+        """On search signal handler."""
         data = self._search_entry.get_text().strip()
         self._flowbox.set_filter_func(self._filter_func, data, True)
 
     def close_window(self, *args):
-        self.destroy()
+        """Handle the destroy/delete-event signal."""
+        # Hide the search bar when the user hits Escape
+        if self._search_bar.get_search_mode():
+            self._search_bar.set_search_mode(False)
+        else:
+            self.destroy()
 
     def _toggle_search(self, *args):
+        """Toggle the search bar."""
         self._search_bar.set_search_mode(
             not self._search_bar.get_search_mode())
 
     def _filter_func(self, row, data, notify_destroy):
-        folder_icon_name = row.get_child().name
-        data = data.lower()
-        if len(data) > 0:
-            return data in folder_icon_name
+        """Filter func used to filter FlowBoxChild's."""
+        folder_icon_name = row.name
+        if data:
+            return data.lower() in folder_icon_name
         else:
             return True
