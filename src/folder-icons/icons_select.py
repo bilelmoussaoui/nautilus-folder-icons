@@ -140,12 +140,6 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
         headerbar.set_custom_title(headerbar_container)
         headerbar.set_show_close_button(False)
-        # Apply Button
-        self._apply_button = Gtk.Button()
-        self._apply_button.set_label(_("Apply"))
-        self._apply_button.set_sensitive(False)
-        self._apply_button.get_style_context().add_class("suggested-action")
-        self._apply_button.connect("clicked", self._do_select)
 
         # Search Button
         self._search_btn = Gtk.ToggleButton()
@@ -159,7 +153,6 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         cancel_button.connect("clicked", self.close_window)
 
         headerbar.pack_start(cancel_button)
-        headerbar.pack_end(self._apply_button)
         headerbar.pack_end(self._search_btn)
         self.set_titlebar(headerbar)
 
@@ -191,7 +184,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        self._flowbox.connect("child-activated", self._on_select)
+        self._flowbox.connect("child-activated", self._do_select)
         self._flowbox.connect("selected-children-changed", self._on_update_preview)
         self._flowbox.set_valign(Gtk.Align.START)
         self._flowbox.set_row_spacing(0)
@@ -229,19 +222,12 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         icon_name = self._flowbox.get_selected_children()[0].name
         return icon_name
 
-    def _on_select(self, *args):
-        """Update the preview when a FlexBoxChild is activated."""
-        self._apply_button.set_sensitive(True)
-        self._do_select()
-
     def _on_update_preview(self, *args):
         icon_name = self._get_selected_icon()
         self._preview.set_icon(icon_name)
 
     def _do_select(self, *args):
-        """Apply buttion clicked signal handler."""
-        if self._apply_button.get_sensitive():
-            self.emit("selected", self._get_selected_icon())
+        self.emit("selected", self._get_selected_icon())
 
     def _on_search(self, *args):
         """On search signal handler."""
