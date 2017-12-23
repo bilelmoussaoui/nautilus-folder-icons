@@ -28,7 +28,41 @@ from icons_utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon
                          get_ext, is_path, uriparse)
 
 
+class FolderBox(Gtk.FlowBoxChild):
+    """
+    FloderBox with icon preview
+    """
+
+    def __init__(self, icon_name):
+        Gtk.FlowBoxChild.__init__(self)
+        self.name = icon_name
+        self._build_widget()
+        self.show()
+
+    def _build_widget(self):
+        """Build the widgets."""
+        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        container.show()
+        theme = Gtk.IconTheme.get_default()
+        pixbuf = theme.load_icon(self.name, 64, 0)
+        # Force the icon to be 64x64
+        pixbuf = pixbuf.scale_simple(64, 64, GdkPixbuf.InterpType.BILINEAR)
+
+        image = Gtk.Image.new_from_pixbuf(pixbuf)
+        image.show()
+        container.pack_start(image, False, False, 6)
+
+        label = Gtk.Label()
+        label.set_text(self.name)
+        label.show()
+        container.pack_start(label, False, False, 6)
+        self.add(container)
+
+
 class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
+    """
+        FolderIcon Chooser Class
+    """
     __gsignals__ = {
         'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, )),
         'loaded': (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -40,17 +74,17 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         Gtk.Window.__init__(self)
         # Here i assume that all folders got the same icon...
         self._folders = folders
-        self.model = None
+        self.model = []
+        self._flowbox = Gtk.FlowBox()
 
         # Threading stuff
         self.setDaemon(True)
         self.run()
 
         # Window configurations
-        self.set_default_size(350, 150)
-        self.set_size_request(350, 150)
-        self.set_border_width(18)
-        self.set_resizable(False)
+        self.set_default_size(650, 500)
+        self.set_size_request(650, 500)
+        self.set_resizable(True)
         self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
 
         # Widgets & Accelerators
@@ -59,11 +93,13 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._setup_accels()
 
     def emit(self, *args):
+        # Use idle_add to make it possible to use emit within a Thread
         GLib.idle_add(GObject.GObject.emit, self, *args)
 
     def run(self):
+        """Threading run method."""
         # Load the completion entries
-        self.model = Gtk.ListStore(str, GdkPixbuf.Pixbuf)
+        self.model = []
         # List all the places icons
         theme = Gtk.IconTheme.get_default()
         icons = theme.list_icons('Places')
@@ -71,18 +107,18 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         folders.sort()
         # Fill in the model (str: icon path, pixbuf)
         for folder in folders:
-            icon = theme.load_icon(folder, 24, 0)
-            # Force the icon to be 24x24
-            icon = icon.scale_simple(24, 24, GdkPixbuf.InterpType.BILINEAR)
-            self.model.append([folder, icon])
+            self.model.append(folder)
         self.emit("loaded")
         return False
 
     def do_loaded(self):
-        self._completion.set_model(self.model)
-        self._completion.set_match_func(self._filter_func)
+        """loaded signal handler."""
+        for folder in self.model:
+            child = FolderBox(folder)
+            self._flowbox.add(child)
 
     def _build_header_bar(self):
+        """Setup window headerbar."""
         # Header bar
         headerbar = Gtk.HeaderBar()
         headerbar_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
@@ -104,129 +140,123 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
         headerbar.set_custom_title(headerbar_container)
         headerbar.set_show_close_button(False)
-        # Apply Button
-        self._apply_button = Gtk.Button()
-        self._apply_button.set_label(_("Apply"))
-        self._apply_button.set_sensitive(False)
-        self._apply_button.get_style_context().add_class("suggested-action")
-        self._apply_button.connect("clicked", self._do_select)
+
+        # Search Button
+        self._search_btn = Gtk.ToggleButton()
+        search_icn = Gio.ThemedIcon(name="system-search-symbolic")
+        search_img = Gtk.Image.new_from_gicon(search_icn, Gtk.IconSize.BUTTON)
+        self._search_btn.set_image(search_img)
 
         # Cancel Button
         cancel_button = Gtk.Button()
         cancel_button.set_label(_("Cancel"))
-        cancel_button.connect("clicked", self._close_window)
+        cancel_button.connect("clicked", self.close_window)
 
         headerbar.pack_start(cancel_button)
-        headerbar.pack_end(self._apply_button)
+        headerbar.pack_end(self._search_btn)
         self.set_titlebar(headerbar)
 
     def _build_content(self):
+        """"Setup window content widges."""
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        container.set_halign(Gtk.Align.CENTER)
-        container.set_valign(Gtk.Align.CENTER)
+
+        # Search bar
+        self._search_bar = Gtk.SearchBar()
+        self._search_bar.set_show_close_button(True)
+
+        self._search_btn.bind_property("active",
+                                       self._search_bar,
+                                       "search-mode-enabled",
+                                       1)
+
+        self._search_entry = Gtk.SearchEntry()
+        self._search_entry.set_width_chars(60)
+        self._search_entry.connect("search-changed", self._on_search)
+        self._search_bar.add(self._search_entry)
+        self._search_bar.connect_entry(self._search_entry)
+
+        container.pack_start(self._search_bar, False, False, 0)
 
         # Preview image
         self._preview = Image()
         self._default_icon = get_default_icon(self._folders[0])
         self._preview.set_icon(self._default_icon)
 
-        hz_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                               spacing=6)
-        # Icon name entry
-        self._icon_entry = Gtk.Entry()
-        if self._default_icon:
-            self._icon_entry.set_text(self._default_icon)
-        else:
-            self._icon_entry.set_text("folder")
-        self._icon_entry.connect("changed", self._refresh_preview)
-        self._icon_entry.grab_focus_without_selecting()
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        # Icon Completion
-        self._completion = Gtk.EntryCompletion()
-        self._completion.set_text_column(0)
-        self._completion.set_popup_set_width(True)
-        self._completion.set_popup_single_match(True)
-        pixbuf = Gtk.CellRendererPixbuf()
-        self._completion.pack_start(pixbuf, False)
-        self._completion.add_attribute(pixbuf, 'pixbuf', 1)
-        self._icon_entry.set_completion(self._completion)
+        self._flowbox.connect("child-activated", self._do_select)
+        self._flowbox.connect("selected-children-changed",
+                              self._on_update_preview)
+        self._flowbox.set_valign(Gtk.Align.START)
+        self._flowbox.set_row_spacing(0)
+        self._flowbox.set_activate_on_single_click(False)
+        self._flowbox.set_min_children_per_line(4)
+        self._flowbox.set_max_children_per_line(12)
+        self._flowbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
 
-        # Icon file selector
-        select_file = Gtk.Button()
-        select_icon = Gio.ThemedIcon(name="document-open-symbolic")
-        select_image = Gtk.Image.new_from_gicon(select_icon,
-                                                Gtk.IconSize.BUTTON)
-        select_file.set_image(select_image)
-        select_file.get_style_context().add_class("flat")
-        select_file.connect("clicked", self._on_select_file)
+        scrolled.add(self._flowbox)
 
-        hz_container.pack_start(self._icon_entry, False, False, 3)
-        hz_container.pack_start(select_file, False, False, 3)
-
-        container.pack_start(self._preview, False, False, 6)
-        container.pack_start(hz_container, False, False, 6)
+        container.pack_start(self._preview, False, False, 0)
+        container.pack_start(scrolled, True, True, 0)
 
         self.add(container)
 
-    def _filter_func(self, completion, data, iterr):
-        model = completion.get_model()
-        return data in model[iterr][0]
-
     def _setup_accels(self):
+        """Setup accels."""
         self._accels = Gtk.AccelGroup()
         self.add_accel_group(self._accels)
 
         key, mod = Gtk.accelerator_parse("Escape")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
-                             self._close_window)
+                             self.close_window)
 
         key, mod = Gtk.accelerator_parse("Return")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
                              self._do_select)
 
-    def _on_select_file(self, *args):
-        dialog = Gtk.FileChooserDialog(_("Select an icon"), self,
-                                       Gtk.FileChooserAction.OPEN,
-                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
-        # Filter images
-        filter_images = Gtk.FileFilter()
-        filter_images.set_name(_("Image files"))
-        filter_images.add_mime_type("image/png")
-        filter_images.add_mime_type("image/svg+xml")
-        dialog.add_filter(filter_images)
+        key, mod = Gtk.accelerator_parse("<Control>F")
+        self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
+                             self._toggle_search)
 
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            icon_path = uriparse(dialog.get_uri())
-            self._icon_entry.set_text(icon_path)
-        dialog.destroy()
+    def _get_selected_icon(self):
+        """Return the selected icon name."""
+        icon_name = self._flowbox.get_selected_children()[0].name
+        return icon_name
 
-    def _refresh_preview(self, entry):
-        icon_name = uriparse(entry.get_text().strip())
-        entry.set_text(icon_name)
-        # Fallback to the default icon
-        if not icon_name:
-            icon_name = self._default_icon
-        # No need to set the same icon again?
-        exists = False
-        if is_path(icon_name):
-            ext = get_ext(icon_name)
-            exists = (path.exists(icon_name)
-                      and ext in SUPPORTED_EXTS)
-        else:
-            theme = Gtk.IconTheme.get_default()
-            exists = theme.has_icon(icon_name)
-        self._apply_button.set_sensitive(exists and icon_name)
-        if exists:
-            self._preview.set_icon(icon_name)
-        else:
-            self._preview.set_icon("image-missing")
+    def _on_update_preview(self, *args):
+        icon_name = self._get_selected_icon()
+        self._preview.set_icon(icon_name)
 
     def _do_select(self, *args):
-        if self._apply_button.get_sensitive():
-            self.emit("selected", self._icon_entry.get_text())
-            self._close_window()
+        self.emit("selected", self._get_selected_icon())
 
-    def _close_window(self, *args):
-        self.destroy()
+    def _on_search(self, *args):
+        """On search signal handler."""
+        data = self._search_entry.get_text().strip()
+        self._flowbox.set_filter_func(self._filter_func, data, True)
+
+    def close_window(self, *args):
+        """Handle the destroy/delete-event signal."""
+        # Hide the search bar when the user hits Escape
+        if self._search_bar.get_search_mode():
+            self._search_bar.set_search_mode(False)
+        else:
+            self.destroy()
+
+    def _toggle_search(self, *args):
+        """Toggle the search bar."""
+        self._search_bar.set_search_mode(
+            not self._search_bar.get_search_mode())
+
+    def _filter_func(self, row, data, notify_destroy):
+        """Filter func used to filter FlowBoxChild's."""
+        folder_icon_name = row.name
+        if data:
+            split_data = data.split(" ")
+            found = True
+            for string in split_data:
+                found = string.lower() in folder_icon_name
+            return found
+        else:
+            return True
