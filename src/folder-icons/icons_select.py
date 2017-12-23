@@ -44,9 +44,9 @@ class FolderBox(Gtk.FlowBoxChild):
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         container.show()
         theme = Gtk.IconTheme.get_default()
-        pixbuf = theme.load_icon(self.name, 48, 0)
-        # Force the icon to be 48x48
-        pixbuf = pixbuf.scale_simple(48, 48, GdkPixbuf.InterpType.BILINEAR)
+        pixbuf = theme.load_icon(self.name, 64, 0)
+        # Force the icon to be 64x64
+        pixbuf = pixbuf.scale_simple(64, 64, GdkPixbuf.InterpType.BILINEAR)
 
         image = Gtk.Image.new_from_pixbuf(pixbuf)
         image.show()
@@ -170,6 +170,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
                                        1)
 
         self._search_entry = Gtk.SearchEntry()
+        self._search_entry.set_width_chars(60)
         self._search_entry.connect("search-changed", self._on_search)
         self._search_bar.add(self._search_entry)
         self._search_bar.connect_entry(self._search_entry)
@@ -185,7 +186,8 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
         self._flowbox.connect("child-activated", self._do_select)
-        self._flowbox.connect("selected-children-changed", self._on_update_preview)
+        self._flowbox.connect("selected-children-changed",
+                              self._on_update_preview)
         self._flowbox.set_valign(Gtk.Align.START)
         self._flowbox.set_row_spacing(0)
         self._flowbox.set_activate_on_single_click(False)
@@ -251,6 +253,10 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         """Filter func used to filter FlowBoxChild's."""
         folder_icon_name = row.name
         if data:
-            return data.lower() in folder_icon_name
+            split_data = data.split(" ")
+            found = True
+            for string in split_data:
+                found = string.lower() in folder_icon_name
+            return found
         else:
             return True

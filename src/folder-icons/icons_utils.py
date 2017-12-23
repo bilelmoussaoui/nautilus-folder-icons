@@ -64,11 +64,18 @@ def get_default_icon(directory):
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
 
     for attribute in attributes:
-        if (ginfo.has_attribute(attribute) and
-                ginfo.get_attribute_type(attribute) == Gio.FileAttributeType.STRING):
-            value = ginfo.get_attribute_string(attribute)
-            if value is not None:
-                return uriparse(value)
+        if ginfo.has_attribute(attribute):
+            attribute_type = ginfo.get_attribute_type(attribute)
+            if attribute_type == Gio.FileAttributeType.STRING:
+                value = ginfo.get_attribute_string(attribute)
+                if value is not None:
+                    return uriparse(value)
+            elif attribute_type == Gio.FileAttributeType.OBJECT:
+                # This return a Gio.ThemedIcon object
+                value = ginfo.get_attribute_object(attribute)
+                icon_names = value.props.names
+                if icon_names:
+                    return icon_names[0]
     return "folder"
 
 
