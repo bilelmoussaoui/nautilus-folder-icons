@@ -43,7 +43,7 @@ class Image(Gtk.Image):
         theme = Gtk.IconTheme.get_default()
         # Make sure the icon name doesn't contain any special char
         # Be sure that the icon still exists on the system
-        if (is_path(icon_name) and path.exists(icon_name)
+        if (is_path(icon_name) and path.exists(icon_name) \
                 and get_ext(icon_name) in SUPPORTED_EXTS):
             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
                                                              Image.SIZE, Image.SIZE,
@@ -180,6 +180,6 @@ def load_pixbuf(theme, icon_name):
     except GLib.Error:
         pixbuf = theme.load_icon("image-missing", 64, 0)
     if pixbuf and pixbuf.props.width >= 48 and pixbuf.props.height >= 48:
-        pixbuf = pixbuf.scale_simple(64, 64, 
-                                        GdkPixbuf.InterpType.BILINEAR)
+        pixbuf = pixbuf.scale_simple(64, 64,
+                                     GdkPixbuf.InterpType.BILINEAR)
     return pixbuf

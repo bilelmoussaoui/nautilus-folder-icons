@@ -107,9 +107,9 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
             pixbuf = load_pixbuf(theme, folder)
             if pixbuf:
                 self.model.append({
-                    "path": folder, 
+                    "path": folder,
                     "pixbuf": pixbuf
-                    })
+                })
         self.emit("loaded")
         return False
 

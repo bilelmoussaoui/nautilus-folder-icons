@@ -36,8 +36,8 @@ class TestCodeFormat(unittest.TestCase):
 
     def test_code_format(self):
         """Test code format."""
-
-        files = glob("{}/**/*.py".format(ABS_PATH))
+        files = glob("{}/**/**/*.py".format(ABS_PATH))
+        files.extend(glob("{}/**/**/*.py.in".format(ABS_PATH)))
         result = self.style.check_files(files)
         self.assertEqual(result.total_errors, 0,
                          "Found code style errors (and warnings).")
