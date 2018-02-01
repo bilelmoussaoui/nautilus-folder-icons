@@ -24,7 +24,7 @@ from gi import require_version
 require_version("Gtk", "3.0")
 from gi.repository import GdkPixbuf, Gio, GLib, GObject, Gtk, Pango
 
-from icons_utils import (SUPPORTED_EXTS, Image, filter_folders, get_default_icon,
+from icons_utils import (SUPPORTED_EXTS, Image, get_default_icon,
                          get_ext, is_path, uriparse)
 
 
@@ -99,17 +99,22 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self.model = []
         # List all the places icons
         theme = Gtk.IconTheme.get_default()
-        icons = theme.list_icons('Places')
-        folders = list(filter(filter_folders, icons))
+        folders = theme.list_icons('Places')
         folders.sort()
         # Fill in the model (str: icon path, pixbuf)
         theme = Gtk.IconTheme.get_default()
+        added = []
         for folder in folders:
+            pixbuf = None
             try:
-                pixbuf = theme.load_icon(folder, 64, 0)
+                icon_info = theme.lookup_icon(folder, 64, 0)
+                if not icon_info.is_symbolic():
+                    icon_path = icon_info.get_filename()
+                    if not path.islink(icon_path) and folder.startswith("folder"):
+                        pixbuf = icon_info.load_icon()
             except GLib.Error:
                 pixbuf = theme.load_icon("image-missing", 64, 0)
-            if pixbuf.props.width >= 48 and pixbuf.props.height >= 48:
+            if pixbuf and pixbuf.props.width >= 48 and pixbuf.props.height >= 48:
                 pixbuf = pixbuf.scale_simple(64, 64, 
                                              GdkPixbuf.InterpType.BILINEAR)
                 self.model.append({"path": folder, "pixbuf": pixbuf})

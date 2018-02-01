@@ -22,7 +22,7 @@ try:
     from urlparse import urlparse
 except ImportError:
     from urllib.parse import unquote, urlparse
-    
+
 from gi import require_version
 require_version("Gtk", "3.0")
 from gi.repository import GdkPixbuf, Gio, Gtk
@@ -145,13 +145,6 @@ def change_folder_icon(folders, window):
     icon_window.set_transient_for(window)
     icon_window.connect("selected", set_icon)
     icon_window.show_all()
-
-
-def filter_folders(icon):
-    """Filter icons to only show folder ones."""
-    icon = icon.lower()
-    return (icon.startswith("folder")
-            and not icon.endswith("symbolic"))
 
 
 def uriparse(uri):
