@@ -8,6 +8,8 @@ jobs:
       - run: >
           dnf -y install
           gettext
+          appstream
+          libappstream-glib 
           gobject-introspection-devel
           gtk3-devel
           meson
