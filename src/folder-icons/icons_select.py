@@ -44,7 +44,11 @@ class FolderBox(Gtk.FlowBoxChild):
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         container.show()
         theme = Gtk.IconTheme.get_default()
-        pixbuf = theme.load_icon(self.name, 64, 0)
+        try:
+            pixbuf = theme.load_icon(self.name, 64, 0)
+        except GLib.Error:
+            pixbuf = theme.load_icon("image-missing", 64, 0)
+
         # Force the icon to be 64x64
         pixbuf = pixbuf.scale_simple(64, 64, GdkPixbuf.InterpType.BILINEAR)
 

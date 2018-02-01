@@ -17,9 +17,12 @@ You should have received a copy of the GNU General Public License
 along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
 from os import path
-from urllib2 import unquote
-from urlparse import urlparse
-
+try:
+    from urllib2 import unquote
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import unquote, urlparse
+    
 from gi import require_version
 require_version("Gtk", "3.0")
 from gi.repository import GdkPixbuf, Gio, Gtk
