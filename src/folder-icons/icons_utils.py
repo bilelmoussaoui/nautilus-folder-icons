@@ -25,7 +25,7 @@ except ImportError:
 
 from gi import require_version
 require_version("Gtk", "3.0")
-from gi.repository import GdkPixbuf, Gio, Gtk
+from gi.repository import GdkPixbuf, Gio, GLib, Gtk
 
 
 SUPPORTED_EXTS = [".svg", ".png"]
@@ -167,3 +167,19 @@ def get_ext(filepath):
 def has_icon(icon_name):
     theme = Gtk.IconTheme.get_default()
     return theme.has_icon(icon_name)
+
+
+def load_pixbuf(theme, icon_name):
+    pixbuf = None
+    try:
+        icon_info = theme.lookup_icon(icon_name, 64, 0)
+        if not icon_info.is_symbolic():
+            icon_path = icon_info.get_filename()
+            if not path.islink(icon_path) and icon_name.startswith("folder"):
+                pixbuf = icon_info.load_icon()
+    except GLib.Error:
+        pixbuf = theme.load_icon("image-missing", 64, 0)
+    if pixbuf and pixbuf.props.width >= 48 and pixbuf.props.height >= 48:
+        pixbuf = pixbuf.scale_simple(64, 64, 
+                                        GdkPixbuf.InterpType.BILINEAR)
+    return pixbuf

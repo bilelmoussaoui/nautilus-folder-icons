@@ -25,7 +25,7 @@ require_version("Gtk", "3.0")
 from gi.repository import GdkPixbuf, Gio, GLib, GObject, Gtk, Pango
 
 from icons_utils import (SUPPORTED_EXTS, Image, get_default_icon,
-                         get_ext, is_path, uriparse)
+                         get_ext, is_path, load_pixbuf, uriparse)
 
 
 class FolderBox(Gtk.FlowBoxChild):
@@ -103,21 +103,13 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         folders.sort()
         # Fill in the model (str: icon path, pixbuf)
         theme = Gtk.IconTheme.get_default()
-        added = []
         for folder in folders:
-            pixbuf = None
-            try:
-                icon_info = theme.lookup_icon(folder, 64, 0)
-                if not icon_info.is_symbolic():
-                    icon_path = icon_info.get_filename()
-                    if not path.islink(icon_path) and folder.startswith("folder"):
-                        pixbuf = icon_info.load_icon()
-            except GLib.Error:
-                pixbuf = theme.load_icon("image-missing", 64, 0)
-            if pixbuf and pixbuf.props.width >= 48 and pixbuf.props.height >= 48:
-                pixbuf = pixbuf.scale_simple(64, 64, 
-                                             GdkPixbuf.InterpType.BILINEAR)
-                self.model.append({"path": folder, "pixbuf": pixbuf})
+            pixbuf = load_pixbuf(theme, folder)
+            if pixbuf:
+                self.model.append({
+                    "path": folder, 
+                    "pixbuf": pixbuf
+                    })
         self.emit("loaded")
         return False
 
