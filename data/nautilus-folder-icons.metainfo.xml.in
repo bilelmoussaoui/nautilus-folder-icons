@@ -8,7 +8,7 @@
   <name>Nautilus Folder Icons</name>
   <summary>Nautilus extension to change folders icons</summary>
   <description>
-    <p>Nautilus extension that makes it easier for you to change folders icons</p>
+    <p>Nautilus extension that makes it easier for you to change folders icons.</p>
   </description>
   <screenshots>
     <screenshot type="default">
@@ -18,4 +18,5 @@
   <developer_name>Bilal Elmoussaoui</developer_name>
   <url type="homepage">https://github.com/bil-elmoussaoui/nautilus-folder-icons</url>
   <url type="bugtracker">https://github.com/bil-elmoussaoui/nautilus-folder-icons/issues</url>
+  <update_contact>bil.elmoussaoui@gmail.com</update_contact>
 ​</component>
