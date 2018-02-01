@@ -1,8 +1,9 @@
 # nautilus-folder-icons
 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/BilalELMoussaoui) [![CircleCI](https://circleci.com/gh/bil-elmoussaoui/nautilus-folder-icons/tree/master.svg?style=shield)](https://circleci.com/gh/bil-elmoussaoui/nautilus-folder-icons/tree/master)
+
 Nautilus/Nemo extension that makes changing folders icons easy!
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/BilalELMoussaoui)
 
 ## Screenshots
 
