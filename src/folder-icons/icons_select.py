@@ -33,9 +33,10 @@ class FolderBox(Gtk.FlowBoxChild):
     FloderBox with icon preview
     """
 
-    def __init__(self, icon_name):
+    def __init__(self, icon_name, pixbuf):
         Gtk.FlowBoxChild.__init__(self)
         self.name = icon_name
+        self.pixbuf = pixbuf
         self._build_widget()
         self.show()
 
@@ -43,16 +44,8 @@ class FolderBox(Gtk.FlowBoxChild):
         """Build the widgets."""
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         container.show()
-        theme = Gtk.IconTheme.get_default()
-        try:
-            pixbuf = theme.load_icon(self.name, 64, 0)
-        except GLib.Error:
-            pixbuf = theme.load_icon("image-missing", 64, 0)
 
-        # Force the icon to be 64x64
-        pixbuf = pixbuf.scale_simple(64, 64, GdkPixbuf.InterpType.BILINEAR)
-
-        image = Gtk.Image.new_from_pixbuf(pixbuf)
+        image = Gtk.Image.new_from_pixbuf(self.pixbuf)
         image.show()
         container.pack_start(image, False, False, 6)
 
@@ -110,15 +103,23 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         folders = list(filter(filter_folders, icons))
         folders.sort()
         # Fill in the model (str: icon path, pixbuf)
+        theme = Gtk.IconTheme.get_default()
         for folder in folders:
-            self.model.append(folder)
+            try:
+                pixbuf = theme.load_icon(folder, 64, 0)
+            except GLib.Error:
+                pixbuf = theme.load_icon("image-missing", 64, 0)
+            if pixbuf.props.width >= 48 and pixbuf.props.height >= 48:
+                pixbuf = pixbuf.scale_simple(64, 64, 
+                                             GdkPixbuf.InterpType.BILINEAR)
+                self.model.append({"path": folder, "pixbuf": pixbuf})
         self.emit("loaded")
         return False
 
     def do_loaded(self):
         """loaded signal handler."""
-        for folder in self.model:
-            child = FolderBox(folder)
+        for entry in self.model:
+            child = FolderBox(entry["path"], entry["pixbuf"])
             self._flowbox.add(child)
 
     def _build_header_bar(self):
