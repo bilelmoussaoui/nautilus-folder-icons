@@ -163,6 +163,7 @@ def set_folder_icon(folder, icon):
             set_symbolic = True
 
     # Set the new icon name
+    Logger.debug("Setting folder {} attribute: {} to {}".format(folder, prop, icon))
     ginfo.set_attribute_string(prop, icon)
     ginfo.set_attribute_status(prop, Gio.FileAttributeStatus.SET)
 
