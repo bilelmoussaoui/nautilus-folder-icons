@@ -23,12 +23,70 @@ try:
 except ImportError:
     from urllib.parse import unquote, urlparse
 
+import logging
+
 from gi import require_version
 require_version("Gtk", "3.0")
 from gi.repository import GdkPixbuf, Gio, GLib, Gtk
 
 
 SUPPORTED_EXTS = [".svg", ".png"]
+
+class Logger:
+    """Logging handler."""
+    DEBUG = logging.DEBUG
+    ERROR = logging.ERROR
+    # Default instance of Logger
+    instance = None
+    # Message format
+    FORMAT = "[nautilus-folder-icons][%(levelname)-s] %(asctime)s %(message)s"
+    # Date format
+    DATE = "%Y-%m-%d %H:%M:%S"
+
+    @staticmethod
+    def new():
+        """Create a new instance of Logger."""
+        logger = logging.getLogger('nautilus-folder-icons')
+        handler = logging.StreamHandler()
+        formater = logging.Formatter(Logger.FORMAT, Logger.DATE)
+        handler.setFormatter(formater)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
+        return logger
+
+    @staticmethod
+    def get_default():
+        """Return the default instance of Logger."""
+        if Logger.instance is None:
+            # Init the Logger
+            Logger.instance = Logger.new()
+        return Logger.instance
+
+    @staticmethod
+    def setLevel(level):
+        """Set the logging level."""
+        Logger.get_default().setLevel(level)
+
+    @staticmethod
+    def warning(msg):
+        """Log a warning message."""
+        Logger.get_default().warning(msg)
+
+    @staticmethod
+    def debug(msg):
+        """Log a debug message."""
+        Logger.get_default().debug(msg)
+
+    @staticmethod
+    def info(msg):
+        """Log an info message."""
+        Logger.get_default().info(msg)
+
+    @staticmethod
+    def error(msg):
+        """Log an error message."""
+        Logger.get_default().error(msg)
+
 
 
 class Image(Gtk.Image):
@@ -134,11 +192,16 @@ def change_folder_icon(folders, window):
     def set_icon(icon_window, icon_name):
         """Set the folder icon & refresh Nautilus's view."""
         for folder in folders:
+            Logger.debug("Changing the folder icon of {} to {}".format(
+                folder, icon_name
+            ))
             set_folder_icon(folder, icon_name)
         # Refresh Nautilus (doesn't work on Nemo...)
         if window.has_action("reload"):
             action = window.lookup_action("reload")
             action.emit("activate", None)
+        else:
+            Logger.warning("The file manager can't be reloaded.")
         icon_window.close_window()
     # Show Icon Chooser window
     icon_window = FolderIconChooser(folders)
