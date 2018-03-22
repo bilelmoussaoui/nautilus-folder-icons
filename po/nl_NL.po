@@ -1,0 +1,57 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the nautilus-folder-icons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: nautilus-folder-icons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-03-22 17:25+0100\n"
+"PO-Revision-Date: 2018-03-22 17:31+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
+"Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: nl_NL\n"
+
+#: data/nautilus-folder-icons.metainfo.xml.in:8
+msgid "Nautilus Folder Icons"
+msgstr "Nautilus Folder Icons"
+
+#: data/nautilus-folder-icons.metainfo.xml.in:9
+msgid "Nautilus extension to change folders icons"
+msgstr "Nautilus-extensie om mappictogrammen te wijzigen"
+
+#: data/nautilus-folder-icons.metainfo.xml.in:11
+msgid ""
+"A Nautilus extension that makes it easier for you to change the folder "
+"colors, or replace the icons with images."
+msgstr ""
+"Een Nautilus-extensie die het wijzigen van mapkleuren en -pictogrammen "
+"vereenvoudigt."
+
+#: data/nautilus-folder-icons.metainfo.xml.in:18
+msgid "Bilal Elmoussaoui"
+msgstr "Bilal Elmoussaoui"
+
+#: src/folder-icons/icons_select.py:130
+msgid "Icon Chooser"
+msgstr "Pictogramkiezer"
+
+#: src/folder-icons/icons_select.py:154
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: src/nautilus/nautilus-folder-icons.py.in:76
+#: src/nemo/nemo-folder-icons.py.in:76
+msgid "Folder Icon"
+msgstr "Mappictogram"
+
+#: src/nautilus/nautilus-folder-icons.py.in:77
+#: src/nemo/nemo-folder-icons.py.in:77
+msgid "Change folder icon"
+msgstr "Mappictogram wijzigen"
