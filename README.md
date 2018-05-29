@@ -19,12 +19,12 @@ Nautilus/Nemo extension that makes changing folders icons easy!
 
 ### Running dependencies
 
-- `python2`
+- `python2` or `python3`
 
 #### For Nautilus
 
 - `nautilus-python`:
-  - Archlinux : `python2-nautilus`
+  - Archlinux : `python2-nautilus` or `python3-nautilus`
 
 #### For Nemo
 
