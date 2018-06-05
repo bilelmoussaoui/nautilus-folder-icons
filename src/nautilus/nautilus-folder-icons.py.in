@@ -27,7 +27,7 @@ require_version("Gtk", "3.0")
 require_version("Nautilus", "3.0")
 from gi.repository import GObject, Gtk, Nautilus
 
-textdomain('nautilus-folder-icons')
+textdomain('@GETTEXT@')
 sys_path.insert(0, "@DATA_DIR@")
 
 from icons_utils import change_folder_icon, uriparse

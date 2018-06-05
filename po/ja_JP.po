@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nautilus-folder-icons\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-23 00:39+0200\n"
+"POT-Creation-Date: 2018-06-05 11:41+0200\n"
 "PO-Revision-Date: 2017-06-17 09:31+0900\n"
 "Last-Translator: HRKo <ootaharuki99@gmail.com>\n"
 "Language-Team: \n"
@@ -18,41 +18,32 @@ msgstr ""
 "X-Generator: Poedit 2.0.1\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: data/nautilus-folder-icons.metainfo.xml.in:8
+#: data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in:8
 msgid "Nautilus Folder Icons"
 msgstr "Nautilus フォルダアイコン"
 
-#: data/nautilus-folder-icons.metainfo.xml.in:9
+#: data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in:9
 msgid "Nautilus extension to change folders icons"
 msgstr "フォルダアイコンを変更する Nautilus 拡張機能"
 
-#: data/nautilus-folder-icons.metainfo.xml.in:11
-msgid "Nautilus extension that makes it easier for you to change folders icons"
+#: data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in:11
+#, fuzzy
+msgid ""
+"A Nautilus extension that makes it easier for you to change the folder "
+"colors, or replace the icons with images."
 msgstr "フォルダのアイコンの変更を簡単にする Nautilus 拡張機能"
 
-#: data/nautilus-folder-icons.metainfo.xml.in:18
+#: data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in:18
 msgid "Bilal Elmoussaoui"
 msgstr "Bilal Elmoussaoui"
 
-#: src/folder-icons/icons_select.py:61
+#: src/folder-icons/icons_select.py:131
 msgid "Icon Chooser"
 msgstr "アイコンの変更"
 
-#: src/folder-icons/icons_select.py:78
-msgid "Apply"
-msgstr "適用"
-
-#: src/folder-icons/icons_select.py:85
+#: src/folder-icons/icons_select.py:155
 msgid "Cancel"
 msgstr "キャンセル"
-
-#: src/folder-icons/icons_select.py:170
-msgid "Select an icon"
-msgstr "アイコンの選択"
-
-#: src/folder-icons/icons_select.py:176
-msgid "Image files"
-msgstr ""
 
 #: src/nautilus/nautilus-folder-icons.py.in:76
 #: src/nemo/nemo-folder-icons.py.in:76
@@ -63,6 +54,12 @@ msgstr "アイコンの変更…"
 #: src/nemo/nemo-folder-icons.py.in:77
 msgid "Change folder icon"
 msgstr "フォルダアイコン変更"
+
+#~ msgid "Apply"
+#~ msgstr "適用"
+
+#~ msgid "Select an icon"
+#~ msgstr "アイコンの選択"
 
 #~ msgid "Number of folders: {}"
 #~ msgstr "フォルダ数: {}"

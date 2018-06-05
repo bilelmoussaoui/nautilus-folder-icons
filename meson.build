@@ -41,6 +41,7 @@ install_data(
 # Configuration params
 conf = configuration_data()
 conf.set('DATA_DIR', pkgdata_dir)
+conf.set('GETTEXT', meson.project_name())
 
 configure_file(
   input: join_paths('src', file_manager, filename + '.in'),

@@ -1,4 +1,4 @@
-data/nautilus-folder-icons.metainfo.xml.in
+data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in
 src/folder-icons/icons_select.py
 src/nautilus/nautilus-folder-icons.py.in
 src/nemo/nemo-folder-icons.py.in
