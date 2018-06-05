@@ -25,7 +25,7 @@ except ImportError:
 
 from gi import require_version
 require_version("Gtk", "3.0")
-from gi.repository import GdkPixbuf, Gio, GLib, Gtk
+from gi.repository import Gdk ,GdkPixbuf, Gio, GLib, Gtk
 
 
 SUPPORTED_EXTS = [".svg", ".png"]
@@ -139,7 +139,7 @@ def change_folder_icon(folders, window):
         if window.has_action("reload"):
             action = window.lookup_action("reload")
             action.emit("activate", None)
-        icon_window.close_window()
+        icon_window.emit("delete-event", Gdk.Event.new(Gdk.EventType.DELETE))
     # Show Icon Chooser window
     icon_window = FolderIconChooser(folders)
     icon_window.set_transient_for(window)

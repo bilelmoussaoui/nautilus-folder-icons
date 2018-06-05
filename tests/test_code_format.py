@@ -21,10 +21,14 @@ import unittest
 from os import path
 from glob import glob
 
-import pycodestyle
+try:
+    import pycodestyle
+except ImportError:
+    print("Please install `pycodestyle` first.")
+    exit(0)
 
-ABS_PATH = path.abspath(path.join(path.dirname(path.abspath(__file__)),
-                                  "../"))
+CURRENT_DIR = path.dirname(path.abspath(__file__))
+ABS_PATH = path.abspath(path.join(CURRENT_DIR, "../"))
 
 
 class TestCodeFormat(unittest.TestCase):
@@ -38,6 +42,7 @@ class TestCodeFormat(unittest.TestCase):
         """Test code format."""
         files = glob("{}/**/**/*.py".format(ABS_PATH))
         files.extend(glob("{}/**/**/*.py.in".format(ABS_PATH)))
+
         result = self.style.check_files(files)
         self.assertEqual(result.total_errors, 0,
                          "Found code style errors (and warnings).")

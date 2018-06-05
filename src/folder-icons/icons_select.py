@@ -69,6 +69,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         GObject.GObject.__init__(self)
         Thread.__init__(self)
         Gtk.Window.__init__(self)
+        self.connect("delete-event", self._close_window)
         # Here i assume that all folders got the same icon...
         self._folders = folders
         self.model = []
@@ -152,7 +153,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         # Cancel Button
         cancel_button = Gtk.Button()
         cancel_button.set_label(_("Cancel"))
-        cancel_button.connect("clicked", self.close_window)
+        cancel_button.connect("clicked", self._close_window)
 
         headerbar.pack_start(cancel_button)
         headerbar.pack_end(self._search_btn)
@@ -211,7 +212,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
         key, mod = Gtk.accelerator_parse("Escape")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
-                             self.close_window)
+                             self._close_window)
 
         key, mod = Gtk.accelerator_parse("Return")
         self._accels.connect(key, mod, Gtk.AccelFlags.VISIBLE,
@@ -238,10 +239,11 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         data = self._search_entry.get_text().strip()
         self._flowbox.set_filter_func(self._filter_func, data, True)
 
-    def close_window(self, *args):
+    def _close_window(self, *args):
         """Handle the destroy/delete-event signal."""
         # Hide the search bar when the user hits Escape
-        if self._search_bar.get_search_mode():
+        is_cancel_btn = not isinstance(args[0], Gtk.AccelGroup)
+        if self._search_bar.get_search_mode() and not is_cancel_btn:
             self._search_bar.set_search_mode(False)
         else:
             self.destroy()

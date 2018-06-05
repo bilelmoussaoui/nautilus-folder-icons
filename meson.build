@@ -32,8 +32,8 @@ subdir('po')
 
 install_data(
   [
-    join_paths('src', 'folder-icons', 'icons_select.py'),
-    join_paths('src', 'folder-icons', 'icons_utils.py')
+    'src/folder-icons/icons_select.py',
+    'src/folder-icons/icons_utils.py'
   ],
   install_dir: pkgdata_dir
 )
