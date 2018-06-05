@@ -1,4 +1,4 @@
-project('nautilus-folder-icons',
+project('com.github.bilelmoussaoui.nautilus-folder-icons',
   version: '2.2',
   meson_version: '>= 0.40.0',
   default_options: [
