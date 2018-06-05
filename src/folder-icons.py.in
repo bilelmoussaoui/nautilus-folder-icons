@@ -24,8 +24,14 @@ from sys import path as sys_path
 
 from gi import require_version
 require_version("Gtk", "3.0")
-require_version("Nautilus", "3.0")
-from gi.repository import GObject, Gtk, Nautilus
+from gi.repository import GObject, Gtk
+
+if "@FILE_MANAGER@" == "nautilus":
+    require_version("Nautilus", "3.0")
+    from gi.repository import Nautilus as FileManager
+else:
+    require_version("Nemo", "3.0")
+    from gi.repository import Nemo as FileManager
 
 textdomain('@GETTEXT@')
 sys_path.insert(0, "@DATA_DIR@")
@@ -34,7 +40,7 @@ from icons_utils import change_folder_icon, uriparse
 
 
 class OpenFolderIconProvider(GObject.GObject,
-                             Nautilus.LocationWidgetProvider):
+                             FileManager.LocationWidgetProvider):
 
     def __init__(self):
         self._window = None
@@ -61,7 +67,7 @@ class OpenFolderIconProvider(GObject.GObject,
         return None
 
 
-class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
+class FileManagerFolderIcons(GObject.GObject, FileManager.MenuProvider):
 
     def get_file_items(self, window, files):
         # Force use to select only directories
@@ -72,7 +78,7 @@ class NautilusFolderIcons(GObject.GObject, Nautilus.MenuProvider):
             folder = uriparse(file_)
             folders.append(folder)
 
-        item = Nautilus.MenuItem(name='NautilusPython::change_folder_icon',
+        item = FileManager.MenuItem(name='@FILE_MANAGER@Python::change_folder_icon',
                                  label=_('Folder Icon'),
                                  tip=_('Change folder icon'))
         item.connect('activate', self._chagne_folder_icon, folders, window)

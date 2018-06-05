@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.bilelmoussaoui.nautilus-folder-icons\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-05 11:41+0200\n"
+"POT-Creation-Date: 2018-06-05 11:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,20 +35,18 @@ msgstr ""
 msgid "Bilal Elmoussaoui"
 msgstr ""
 
-#: src/folder-icons/icons_select.py:131
+#: src/icons_select.py:131
 msgid "Icon Chooser"
 msgstr ""
 
-#: src/folder-icons/icons_select.py:155
+#: src/icons_select.py:155
 msgid "Cancel"
 msgstr ""
 
-#: src/nautilus/nautilus-folder-icons.py.in:76
-#: src/nemo/nemo-folder-icons.py.in:76
+#: src/folder-icons.py.in:82
 msgid "Folder Icon"
 msgstr ""
 
-#: src/nautilus/nautilus-folder-icons.py.in:77
-#: src/nemo/nemo-folder-icons.py.in:77
+#: src/folder-icons.py.in:83
 msgid "Change folder icon"
 msgstr ""
