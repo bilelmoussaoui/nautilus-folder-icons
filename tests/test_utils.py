@@ -17,33 +17,29 @@ along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
 from os import path
-from glob import glob
+from sys import path as sys_path
 
-try:
-    import pycodestyle
-except ImportError:
-    print("Please install `pycodestyle` first.")
-    exit(0)
 
 CURRENT_DIR = path.dirname(path.abspath(__file__))
 ABS_PATH = path.abspath(path.join(CURRENT_DIR, "../"))
+sys_path.insert(0, path.join(ABS_PATH, 'src/'))
+
+from icons_utils import is_path, get_ext, uriparse
+
+class TestUtils(unittest.TestCase):
+
+    def test_is_path(self):
+        self.assertEqual(is_path("test/icon.png"), True)
+        self.assertEqual(is_path("/test/icon.png"), True)
+        self.assertEqual(is_path("/"), True)
+        self.assertEqual(is_path("test.png"), False)
+
+    def test_get_ext(self):
+        self.assertEqual(get_ext("test.png"), ".png")
+        self.assertEqual(get_ext("test.test.png"), ".png")
+        self.assertEqual(get_ext("test"), "")
 
 
-class TestCodeFormat(unittest.TestCase):
-    """Test Code format using pep8."""
-
-    def setUp(self):
-        self.style = pycodestyle.StyleGuide(show_source=True,
-                                            ignore="E402")
-
-    def test_code_format(self):
-        """Test code format."""
-        files = glob("{}/**/**/*.py".format(ABS_PATH))
-        files.extend(glob("{}/**/**/*.py.in".format(ABS_PATH)))
-
-        result = self.style.check_files(files)
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
 
 
 if __name__ == "__main__":

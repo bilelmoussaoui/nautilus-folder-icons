@@ -25,7 +25,8 @@ except ImportError:
 
 from gi import require_version
 require_version("Gtk", "3.0")
-from gi.repository import Gdk ,GdkPixbuf, Gio, GLib, Gtk
+require_version("Gdk", "3.0")
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk
 
 
 SUPPORTED_EXTS = [".svg", ".png"]
