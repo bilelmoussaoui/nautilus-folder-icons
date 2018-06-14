@@ -19,4 +19,14 @@
   <url type="homepage">https://github.com/bil-elmoussaoui/nautilus-folder-icons</url>
   <url type="bugtracker">https://github.com/bil-elmoussaoui/nautilus-folder-icons/issues</url>
   <update_contact>bil.elmoussaoui@gmail.com</update_contact>
+  <releases>
+    <release date="2018-02-01" version="2.3" />
+    <release date="2017-12-23" version="2.2" />
+    <release date="2017-11-29" version="2.1.1" />
+    <release date="2017-07-23" version="2.1" />
+    <release date="2017-01-24" version="2.0" />
+    <release date="2017-01-15" version="1.2" />
+    <release date="2017-01-13" version="1.1" />
+    <release date="2017-01-06" version="1.0" />
+  </releases>
 ​</component>

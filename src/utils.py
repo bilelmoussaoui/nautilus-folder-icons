@@ -126,7 +126,7 @@ def set_default_icon(folder, icon):
         icon = "file://{}".format(icon)
     else:  # Makes sure we have a fallback icon.
         symbolic_icon = "{}-symbolic".format(icon)
-        if has_icon(symbolic_icon):
+        if symbolic_icon and has_icon(symbolic_icon):
             set_symbolic = True
 
     # Set the new icon name
@@ -200,8 +200,10 @@ def has_icon(icon_name):
         icon_name (str): the icon name to be checked.
     """
     theme = Gtk.IconTheme.get_default()
-    return theme.has_icon(icon_name)
-
+    if theme:
+        theme.has_icon(icon_name)
+    else:
+        return False
 
 def load_pixbuf(theme, icon_name):
     pixbuf = None
