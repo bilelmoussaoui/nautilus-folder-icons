@@ -84,6 +84,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self.set_size_request(650, 500)
         self.set_resizable(True)
         self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+        self.connect("key-press-event", self._on_key_press)
 
         # Widgets & Accelerators
         self._build_header_bar()
@@ -233,6 +234,9 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
     def _do_select(self, *args):
         self.emit("selected", self._get_selected_icon())
+
+    def _on_key_press(self, window, event):
+        self._search_bar.handle_event(event)
 
     def _on_search(self, *args):
         """On search signal handler."""
