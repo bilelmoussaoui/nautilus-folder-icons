@@ -24,10 +24,13 @@ CURRENT_DIR = path.dirname(path.abspath(__file__))
 ABS_PATH = path.abspath(path.join(CURRENT_DIR, "../"))
 sys_path.insert(0, path.join(ABS_PATH, 'src/'))
 
-USERNAME = getenv("SUDO_USER") or getenv("USER")
-HOME = path.expanduser("~" + USERNAME)
-
 from utils import is_path, get_ext, uriparse, get_default_icon, set_default_icon, restore_default_icon
+
+USERNAME = getenv("SUDO_USER") or getenv("USER")
+if USERNAME:
+    HOME = path.expanduser("~" + USERNAME)
+else:
+    HOME = path.expanduser("~")
 
 class TestUtils(unittest.TestCase):
 
