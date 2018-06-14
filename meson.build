@@ -26,10 +26,28 @@ pkgdata_dir   = join_paths(get_option('prefix'),
 subdir('data')
 subdir('po')
 
+
+# Run tests
+python = find_program(['python3', 'python'], required: false)
+if python.found()
+  test_files = ['test_code_format.py', 'test_utils.py']
+
+  foreach test_file : test_files
+    test (
+      'Running unittests' + test_file,
+      python,
+      args: [join_paths(meson.source_root(), 'tests', test_file)]
+    )
+  endforeach
+
+endif
+
+
+
 install_data(
   [
-    'src/icons_select.py',
-    'src/icons_utils.py'
+    'src/widgets.py',
+    'src/utils.py'
   ],
   install_dir: pkgdata_dir
 )
@@ -41,7 +59,7 @@ conf.set('GETTEXT', meson.project_name())
 conf.set('FILE_MANAGER', file_manager)
 
 configure_file(
-  input: join_paths('src/folder-icons.py.in'),
+  input: 'src/folder-icons.py.in',
   output: 'folder-icons.py',
   configuration: conf,
   install_dir: extension_dir

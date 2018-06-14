@@ -24,8 +24,8 @@ from gi import require_version
 require_version("Gtk", "3.0")
 from gi.repository import GdkPixbuf, Gio, GLib, GObject, Gtk, Pango
 
-from icons_utils import (SUPPORTED_EXTS, Image, get_default_icon,
-                         get_ext, is_path, load_pixbuf, uriparse)
+from utils import (SUPPORTED_EXTS, Image, get_default_icon,
+                   get_ext, is_path, load_pixbuf, uriparse)
 
 
 class FolderBox(Gtk.FlowBoxChild):

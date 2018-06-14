@@ -44,7 +44,7 @@ class Image(Gtk.Image):
         theme = Gtk.IconTheme.get_default()
         # Make sure the icon name doesn't contain any special char
         # Be sure that the icon still exists on the system
-        if (is_path(icon_name) and path.exists(icon_name) \
+        if (is_path(icon_name) and path.exists(icon_name)
                 and get_ext(icon_name) in SUPPORTED_EXTS):
             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_name,
                                                              Image.SIZE, Image.SIZE,
@@ -55,6 +55,22 @@ class Image(Gtk.Image):
             pixbuf = theme.load_icon_for_scale("image-missing",
                                                Image.SIZE, 1, 0)
         self.set_from_pixbuf(pixbuf)
+
+
+def get_attribute_value(ginfo, attribute):
+    if ginfo.has_attribute(attribute):
+        attribute_type = ginfo.get_attribute_type(attribute)
+        if attribute_type == Gio.FileAttributeType.STRING:
+            value = ginfo.get_attribute_string(attribute)
+            if value is not None:
+                return uriparse(value)
+        elif attribute_type == Gio.FileAttributeType.OBJECT:
+            # This return a Gio.ThemedIcon object
+            value = ginfo.get_attribute_object(attribute)
+            icon_names = value.props.names
+            if icon_names:
+                return icon_names[0]
+    return None
 
 
 def get_default_icon(directory):
@@ -68,23 +84,31 @@ def get_default_icon(directory):
                              Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
 
     for attribute in attributes:
-        if ginfo.has_attribute(attribute):
-            attribute_type = ginfo.get_attribute_type(attribute)
-            if attribute_type == Gio.FileAttributeType.STRING:
-                value = ginfo.get_attribute_string(attribute)
-                if value is not None:
-                    return uriparse(value)
-            elif attribute_type == Gio.FileAttributeType.OBJECT:
-                # This return a Gio.ThemedIcon object
-                value = ginfo.get_attribute_object(attribute)
-                icon_names = value.props.names
-                if icon_names:
-                    return icon_names[0]
+        icon_name = get_attribute_value(ginfo, attribute)
+        if icon_name:
+            return icon_name
     return "folder"
 
 
-def set_folder_icon(folder, icon):
-    """Use Gio to set the default folder icon."""
+def restore_default_icon(folder):
+    """Restore default icon of a folder.
+
+    Args:
+        folder (str): the folder's path.
+    """
+    gfile = Gio.File.new_for_path(folder)
+    ginfo = gfile.query_info("standard::icon",
+                            Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS)
+    default_icon = get_attribute_value(ginfo, "standard::icon")
+    set_default_icon(folder, default_icon)
+
+def set_default_icon(folder, icon):
+    """Use Gio to set the default folder icon.
+
+    Args:
+        folder (str): the folder's path.
+        icon   (str): the icon name to be set.
+    """
     gfile = Gio.File.new_for_path(folder)
     # Property to set by default
     prop = "metadata::custom-icon-name"
@@ -130,12 +154,12 @@ def set_folder_icon(folder, icon):
 
 def change_folder_icon(folders, window):
     """Change default folder icon."""
-    from icons_select import FolderIconChooser
+    from widgets import FolderIconChooser
 
     def set_icon(icon_window, icon_name):
         """Set the folder icon & refresh Nautilus's view."""
         for folder in folders:
-            set_folder_icon(folder, icon_name)
+            set_default_icon(folder, icon_name)
         # Refresh Nautilus (doesn't work on Nemo...)
         if window.has_action("reload"):
             action = window.lookup_action("reload")
@@ -161,11 +185,20 @@ def is_path(icon):
 
 
 def get_ext(filepath):
-    """Returns file extension."""
+    """Returns file extension.
+
+    Args:
+        filepath (str): the file's absolute or relative path.
+    """
     return path.splitext(filepath)[1].lower()
 
 
 def has_icon(icon_name):
+    """Check whether a theme has a specific icon.
+
+    Args:
+        icon_name (str): the icon name to be checked.
+    """
     theme = Gtk.IconTheme.get_default()
     return theme.has_icon(icon_name)
 
@@ -180,7 +213,7 @@ def load_pixbuf(theme, icon_name):
                 pixbuf = icon_info.load_icon()
     except GLib.Error:
         pixbuf = theme.load_icon("image-missing", 64, 0)
-    if pixbuf and pixbuf.props.width >= 48 and pixbuf.props.height >= 48:
+    if pixbuf and (pixbuf.props.width != 64 or pixbuf.props.height != 64):
         pixbuf = pixbuf.scale_simple(64, 64,
                                      GdkPixbuf.InterpType.BILINEAR)
     return pixbuf

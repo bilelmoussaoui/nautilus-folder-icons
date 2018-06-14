@@ -16,15 +16,18 @@ You should have received a copy of the GNU General Public License
 along with nautilus-folder-icons. If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
-from os import path
+from os import getenv, path, makedirs, rmdir
 from sys import path as sys_path
-
+from tempfile import NamedTemporaryFile
 
 CURRENT_DIR = path.dirname(path.abspath(__file__))
 ABS_PATH = path.abspath(path.join(CURRENT_DIR, "../"))
 sys_path.insert(0, path.join(ABS_PATH, 'src/'))
 
-from icons_utils import is_path, get_ext, uriparse
+USERNAME = getenv("SUDO_USER") or getenv("USER")
+HOME = path.expanduser("~" + USERNAME)
+
+from utils import is_path, get_ext, uriparse, get_default_icon, set_default_icon, restore_default_icon
 
 class TestUtils(unittest.TestCase):
 
@@ -38,9 +41,35 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(get_ext("test.png"), ".png")
         self.assertEqual(get_ext("test.test.png"), ".png")
         self.assertEqual(get_ext("test"), "")
+        self.assertEqual(get_ext("test.PNG"), ".png")
 
+    def test_get_default_icon(self):
+        self.assertEqual(get_default_icon(path.join(HOME, "Videos")), "folder-videos")
+        self.assertEqual(get_default_icon(path.join(HOME, "Music")), "folder-music")
 
+        # Create a simple dir
+        test_dir = path.join(HOME, NamedTemporaryFile().name)
+        makedirs(test_dir)
+        self.assertEqual(get_default_icon(test_dir), "folder")
+        rmdir(test_dir)
 
+    def test_set_default_icon(self):
+        test_dir = path.join(HOME, NamedTemporaryFile().name)
+        makedirs(test_dir)
+        self.assertEqual(get_default_icon(test_dir), "folder")
+        set_default_icon(test_dir, "folder-videos")
+        self.assertEqual(get_default_icon(test_dir), "folder-videos")
+        rmdir(test_dir)
+
+    def test_restore_default_icon(self):
+        test_dir = path.join(HOME, NamedTemporaryFile().name)
+        makedirs(test_dir)
+        self.assertEqual(get_default_icon(test_dir), "folder")
+        set_default_icon(test_dir, "folder-videos")
+        self.assertEqual(get_default_icon(test_dir), "folder-videos")
+        restore_default_icon(test_dir)
+        self.assertEqual(get_default_icon(test_dir), "folder")
+        rmdir(test_dir)
 
 if __name__ == "__main__":
     unittest.main()
