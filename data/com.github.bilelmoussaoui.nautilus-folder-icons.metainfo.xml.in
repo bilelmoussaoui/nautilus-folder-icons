@@ -1,22 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="addon">
-  <translation type="gettext">com.github.bilelmoussaoui.nautilus-folder-icons</translation>
-  <id>com.github.bilelmoussaoui.nautilus-folder-icons</id>
-  <extends>org.gnome.nautilus</extends>
-  <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPL-3.0+</project_license>
-  <name>Nautilus Folder Icons</name>
-  <summary>Nautilus extension to change folders icons</summary>
-  <description>
-    <p>A Nautilus extension that makes it easier for you to change the folder colors, or replace the icons with images.</p>
-  </description>
-  <screenshots>
-    <screenshot type="default">
-      <image>https://raw.githubusercontent.com/bil-elmoussaoui/nautilus-folder-icons/master/screenshots/screenshot1.png</image>
-    </screenshot>
-  </screenshots>
-  <developer_name>Bilal Elmoussaoui</developer_name>
-  <url type="homepage">https://github.com/bil-elmoussaoui/nautilus-folder-icons</url>
-  <url type="bugtracker">https://github.com/bil-elmoussaoui/nautilus-folder-icons/issues</url>
-  <update_contact>bil.elmoussaoui@gmail.com</update_contact>
-​</component>
+    <translation type="gettext">com.github.bilelmoussaoui.nautilus-folder-icons</translation>
+    <id>com.github.bilelmoussaoui.nautilus-folder-icons</id>
+    <extends>org.gnome.nautilus</extends>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0+</project_license>
+    <name>Nautilus Folder Icons</name>
+    <summary>Nautilus extension to change folders icons</summary>
+    <description>
+        <p>A Nautilus extension that makes it easier for you to change the folder colors, or replace the icons with images.</p>
+    </description>
+    <screenshots>
+        <screenshot type="default">
+            <image>https://raw.githubusercontent.com/bil-elmoussaoui/nautilus-folder-icons/master/screenshots/screenshot1.png</image>
+        </screenshot>
+    </screenshots>
+    <developer_name>Bilal Elmoussaoui</developer_name>
+    <url type="homepage">https://github.com/bil-elmoussaoui/nautilus-folder-icons</url>
+    <url type="bugtracker">https://github.com/bil-elmoussaoui/nautilus-folder-icons/issues</url>
+    <update_contact>bil.elmoussaoui@gmail.com</update_contact>
+    <releases>
+        <release date="2018-06-16" version="3.0">
+            <description>
+                <ul>
+                    <li>Search on type</li>
+                    <li>Possibility to restore default icons</li>
+                    <li>Code quality improvements</li>
+                </ul>
+            </description>
+        </release>
+        <release date="2018-02-01" version="2.3" />
+        <release date="2017-12-23" version="2.2" />
+        <release date="2017-11-29" version="2.1.1" />
+        <release date="2017-07-23" version="2.1" />
+        <release date="2017-01-24" version="2.0" />
+        <release date="2017-01-15" version="1.2" />
+        <release date="2017-01-13" version="1.1" />
+        <release date="2017-01-06" version="1.0" />
+    </releases>
+    <content_rating type="oars-1.1">
+        <content_attribute id="violence-cartoon">none</content_attribute>
+        <content_attribute id="violence-fantasy">none</content_attribute>
+        <content_attribute id="violence-realistic">none</content_attribute>
+        <content_attribute id="violence-bloodshed">none</content_attribute>
+        <content_attribute id="violence-sexual">none</content_attribute>
+        <content_attribute id="violence-desecration">none</content_attribute>
+        <content_attribute id="violence-slavery">none</content_attribute>
+        <content_attribute id="violence-worship">none</content_attribute>
+        <content_attribute id="drugs-alcohol">none</content_attribute>
+        <content_attribute id="drugs-narcotics">none</content_attribute>
+        <content_attribute id="drugs-tobacco">none</content_attribute>
+        <content_attribute id="sex-nudity">none</content_attribute>
+        <content_attribute id="sex-themes">none</content_attribute>
+        <content_attribute id="sex-homosexuality">none</content_attribute>
+        <content_attribute id="sex-prostitution">none</content_attribute>
+        <content_attribute id="sex-adultery">none</content_attribute>
+        <content_attribute id="sex-appearance">none</content_attribute>
+        <content_attribute id="language-profanity">none</content_attribute>
+        <content_attribute id="language-humor">none</content_attribute>
+        <content_attribute id="language-discrimination">none</content_attribute>
+        <content_attribute id="social-chat">none</content_attribute>
+        <content_attribute id="social-info">none</content_attribute>
+        <content_attribute id="social-audio">none</content_attribute>
+        <content_attribute id="social-location">none</content_attribute>
+        <content_attribute id="social-contacts">none</content_attribute>
+        <content_attribute id="money-purchasing">none</content_attribute>
+        <content_attribute id="money-gambling">none</content_attribute>
+    </content_rating>
+</component>

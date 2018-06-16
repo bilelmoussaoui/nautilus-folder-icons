@@ -36,7 +36,7 @@ else:
 textdomain('@GETTEXT@')
 sys_path.insert(0, "@DATA_DIR@")
 
-from icons_utils import change_folder_icon, uriparse
+from utils import change_folder_icon, restore_default_icon, uriparse
 
 
 class OpenFolderIconProvider(GObject.GObject,
@@ -78,11 +78,41 @@ class FileManagerFolderIcons(GObject.GObject, FileManager.MenuProvider):
             folder = uriparse(file_)
             folders.append(folder)
 
-        item = FileManager.MenuItem(name='@FILE_MANAGER@Python::change_folder_icon',
-                                 label=_('Folder Icon'),
-                                 tip=_('Change folder icon'))
-        item.connect('activate', self._chagne_folder_icon, folders, window)
-        return [item]
+        top_item = FileManager.MenuItem(name='@FILE_MANAGER@Python::folder-icons',
+                                    label=_('Folder Icon'),
+                                    tip=_('Change folder icon'))
 
-    def _chagne_folder_icon(self, *args):
-        change_folder_icon(args[1], args[2])
+        submenu = FileManager.Menu()
+        top_item.set_submenu(submenu)
+
+        item = FileManager.MenuItem(name='@FILE_MANAGER@Python::change_folder_icon',
+                                    label=_("Select a new icon"))
+        item.connect('activate', self._chagne_folder_icon, folders, window)
+        submenu.append_item(item)
+
+        if len(folders) == 1:
+            item = FileManager.MenuItem(name='@FILE_MANAGER@Python::restore_default_icon',
+                                    label=_("Restore default"), tip=_("Restore default icon"))
+            item.connect('activate', self._restore_default_icon, folders[0], window)
+            submenu.append_item(item)
+        elif len(folders) > 1:
+            item = FileManager.MenuItem(name='@FILE_MANAGER@Python::restore_all_default_icon',
+                                    label=_("Restore all to default"), tip=_("Restore all folders to default icon"))
+            item.connect('activate', self._restore_default_icon, folders, window)
+            submenu.append_item(item)
+
+
+        return [top_item]
+
+    def _chagne_folder_icon(self, menu_item, folders, nautilus_window):
+        change_folder_icon(folders, nautilus_window)
+
+    def _restore_default_icon(self, menu_item, folders, nautilus_window):
+        if isinstance(folders, str):
+            restore_default_icon(folders)
+        else:
+            for folder in folders:
+                restore_default_icon(folder)
+        if nautilus_window.has_action("reload"):
+            action = nautilus_window.lookup_action("reload")
+            action.emit("activate", None)

@@ -2,3 +2,4 @@ build/
 tags
 po/*.po~
 builddir/
+__pycache__/

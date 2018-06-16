@@ -24,8 +24,8 @@ from gi import require_version
 require_version("Gtk", "3.0")
 from gi.repository import GdkPixbuf, Gio, GLib, GObject, Gtk, Pango
 
-from icons_utils import (SUPPORTED_EXTS, Image, get_default_icon,
-                         get_ext, is_path, load_pixbuf, uriparse)
+from utils import (SUPPORTED_EXTS, Image, get_default_icon,
+                   get_ext, is_path, load_pixbuf, uriparse)
 
 
 class FolderBox(Gtk.FlowBoxChild):
@@ -84,6 +84,7 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self.set_size_request(650, 500)
         self.set_resizable(True)
         self.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+        self.connect("key-press-event", self._on_key_press)
 
         # Widgets & Accelerators
         self._build_header_bar()
@@ -233,6 +234,9 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
 
     def _do_select(self, *args):
         self.emit("selected", self._get_selected_icon())
+
+    def _on_key_press(self, window, event):
+        self._search_bar.handle_event(event)
 
     def _on_search(self, *args):
         """On search signal handler."""
