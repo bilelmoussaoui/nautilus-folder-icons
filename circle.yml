@@ -5,11 +5,9 @@ jobs:
       - image: fedora:latest
     working_directory: ~/nautilus-folder-icons
     steps:  
-      - run: export DISPLAY=:99.0
-      - run: sh -e /etc/init.d/xvfb start
-      - run: sleep 3 # give xvfb some time to start
       - run: >
           dnf -y install
+          xorg-x11-server-Xvfb
           gettext
           appstream
           libappstream-glib
@@ -19,6 +17,9 @@ jobs:
           ninja-build
           python3-pip
           python3-gobject
+      - run: export DISPLAY=:99.0
+      - run: sh -e /etc/init.d/xvfb start
+      - run: sleep 3 # give xvfb some time to start
       - checkout
       - run: pip3 install pycodestyle
       - run: meson builddir
