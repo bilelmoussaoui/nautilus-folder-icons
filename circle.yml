@@ -5,9 +5,9 @@ jobs:
       - image: fedora:latest
     working_directory: ~/nautilus-folder-icons
     steps:  
-      - "export DISPLAY=:99.0"
-      - "sh -e /etc/init.d/xvfb start"
-      - sleep 3 # give xvfb some time to start
+      - run: export DISPLAY=:99.0
+      - run: sh -e /etc/init.d/xvfb start
+      - run: sleep 3 # give xvfb some time to start
       - run: >
           dnf -y install
           gettext
