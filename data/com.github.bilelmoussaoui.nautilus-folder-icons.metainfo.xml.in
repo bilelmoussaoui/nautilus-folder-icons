@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="addon">
-    <translation type="gettext">com.github.bilelmoussaoui.nautilus-folder-icons</translation>
     <id>com.github.bilelmoussaoui.nautilus-folder-icons</id>
     <extends>org.gnome.nautilus</extends>
     <metadata_license>CC0-1.0</metadata_license>
@@ -12,14 +11,23 @@
     </description>
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/bil-elmoussaoui/nautilus-folder-icons/master/screenshots/screenshot1.png</image>
+            <image>https://raw.githubusercontent.com/bilelmoussaoui/nautilus-folder-icons/master/data/screenshots/screenshot1.png</image>
         </screenshot>
     </screenshots>
     <developer_name>Bilal Elmoussaoui</developer_name>
-    <url type="homepage">https://github.com/bil-elmoussaoui/nautilus-folder-icons</url>
-    <url type="bugtracker">https://github.com/bil-elmoussaoui/nautilus-folder-icons/issues</url>
+    <url type="homepage">https://github.com/bilelmoussaoui/nautilus-folder-icons</url>
+    <url type="bugtracker">https://github.com/bilelmoussaoui/nautilus-folder-icons/issues</url>
+    <url type="donation">https://www.paypal.me/BilalELMoussaoui</url>
     <update_contact>bil.elmoussaoui@gmail.com</update_contact>
+    <translation type="gettext">com.github.bilelmoussaoui.nautilus-folder-icons</translation>
     <releases>
+        <release date="2018-06-16" version="3.0.1">
+            <description>
+                <ul>
+                    <li>The extension now works with Python 3</li>
+                </ul>
+            </description>
+        </release>
         <release date="2018-06-16" version="3.0">
             <description>
                 <ul>

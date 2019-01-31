@@ -1,9 +1,8 @@
-#!/usr/bin/python2
 """
 Change your nautilus directories icons easily
 
 Author : Bilal Elmoussaoui (bil.elmoussaoui@gmail.com)
-Website : https://github.com/bil-elmoussaoui/nautilus-folder-icons
+Website : https://github.com/bilelmoussaoui/nautilus-folder-icons
 Licence : GPL-3.0
 nautilus-folder-icons is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as published
@@ -87,7 +86,7 @@ def get_default_icon(directory):
         icon_name = get_attribute_value(ginfo, attribute)
         if icon_name:
             return icon_name
-    return "folder"
+    return "inode-directory"
 
 
 def restore_default_icon(folder):

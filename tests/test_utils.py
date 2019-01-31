@@ -2,7 +2,7 @@
 Change your nautilus directories icons easily
 
 Author : Bilal Elmoussaoui (bil.elmoussaoui@gmail.com)
-Website : https://github.com/bil-elmoussaoui/nautilus-folder-icons
+Website : https://github.com/bilelmoussaoui/nautilus-folder-icons
 Licence : GPL-3.0
 nautilus-folder-icons is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as published
@@ -53,13 +53,13 @@ class TestUtils(unittest.TestCase):
         # Create a simple dir
         test_dir = path.join(HOME, NamedTemporaryFile().name)
         makedirs(test_dir)
-        self.assertEqual(get_default_icon(test_dir), "folder")
+        self.assertEqual(get_default_icon(test_dir), "inode-directory")
         rmdir(test_dir)
 
     def test_set_default_icon(self):
         test_dir = path.join(HOME, NamedTemporaryFile().name)
         makedirs(test_dir)
-        self.assertEqual(get_default_icon(test_dir), "folder")
+        self.assertEqual(get_default_icon(test_dir), "inode-directory")
         set_default_icon(test_dir, "folder-videos")
         self.assertEqual(get_default_icon(test_dir), "folder-videos")
         rmdir(test_dir)
@@ -67,11 +67,11 @@ class TestUtils(unittest.TestCase):
     def test_restore_default_icon(self):
         test_dir = path.join(HOME, NamedTemporaryFile().name)
         makedirs(test_dir)
-        self.assertEqual(get_default_icon(test_dir), "folder")
+        self.assertEqual(get_default_icon(test_dir), "inode-directory")
         set_default_icon(test_dir, "folder-videos")
         self.assertEqual(get_default_icon(test_dir), "folder-videos")
         restore_default_icon(test_dir)
-        self.assertEqual(get_default_icon(test_dir), "folder")
+        self.assertEqual(get_default_icon(test_dir), "inode-directory")
         rmdir(test_dir)
 
 if __name__ == "__main__":

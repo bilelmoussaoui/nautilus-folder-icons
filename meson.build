@@ -1,5 +1,5 @@
 project('com.github.bilelmoussaoui.nautilus-folder-icons',
-  version: '3.0',
+  version: '3.0.1',
   meson_version: '>= 0.40.0',
   default_options: [
     'prefix=/usr'

@@ -1,9 +1,8 @@
-#!/usr/bin/python2
 """
 Change your nautilus directories icons easily
 
 Author : Bilal Elmoussaoui (bil.elmoussaoui@gmail.com)
-Website : https://github.com/bil-elmoussaoui/nautilus-folder-icons
+Website : https://github.com/bilelmoussaoui/nautilus-folder-icons
 Licence : GPL-3.0
 nautilus-folder-icons is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as published
@@ -152,11 +151,11 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._search_btn.set_image(search_img)
 
         # Cancel Button
-        cancel_button = Gtk.Button()
-        cancel_button.set_label(_("Cancel"))
-        cancel_button.connect("clicked", self._close_window)
+        close_button = Gtk.Button()
+        close_button.set_label(_("Close"))
+        close_button.connect("clicked", self._close_window)
 
-        headerbar.pack_start(cancel_button)
+        headerbar.pack_start(close_button)
         headerbar.pack_end(self._search_btn)
         self.set_titlebar(headerbar)
 
