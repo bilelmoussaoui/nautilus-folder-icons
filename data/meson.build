@@ -1,5 +1,6 @@
 metafile = meson.project_name() + '.metainfo.xml'
 i18n.merge_file(
+  'appdata',
   input: metafile + '.in',
   output: metafile,
   po_dir: join_paths(meson.source_root(), 'po'),
@@ -8,11 +9,11 @@ i18n.merge_file(
 )
 
 # Validating the appdata file
-appstreamcli = find_program(['appstreamcli', 'appstream-util'], required: false)
-if appstreamcli.found()
+appstream_util = find_program('appstream-util', required: false)
+if appstream_util.found()
   test (
     'Validate appdata file',
-    appstreamcli,
-    args: ['validate', join_paths(meson.current_build_dir (), metafile)]
+    appstream_util,
+    args: ['validate', '--nonet', join_paths(meson.current_build_dir (), metafile)]
   )
 endif

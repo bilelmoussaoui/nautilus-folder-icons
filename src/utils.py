@@ -1,4 +1,3 @@
-#!/usr/bin/python2
 """
 Change your nautilus directories icons easily
 

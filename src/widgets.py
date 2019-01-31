@@ -1,4 +1,3 @@
-#!/usr/bin/python2
 """
 Change your nautilus directories icons easily
 
@@ -152,11 +151,11 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         self._search_btn.set_image(search_img)
 
         # Cancel Button
-        cancel_button = Gtk.Button()
-        cancel_button.set_label(_("Cancel"))
-        cancel_button.connect("clicked", self._close_window)
+        close_button = Gtk.Button()
+        close_button.set_label(_("Close"))
+        close_button.connect("clicked", self._close_window)
 
-        headerbar.pack_start(cancel_button)
+        headerbar.pack_start(close_button)
         headerbar.pack_end(self._search_btn)
         self.set_titlebar(headerbar)
 
