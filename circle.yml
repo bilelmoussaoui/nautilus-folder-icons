@@ -3,6 +3,7 @@ jobs:
   build:
     docker:
       - image: fedora:latest
+        user: test
     working_directory: ~/nautilus-folder-icons
     steps:
       - run: >
