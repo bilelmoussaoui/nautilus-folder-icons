@@ -3,8 +3,8 @@
 Change your nautilus directories icons easily
 
 Author : Bilal Elmoussaoui (bil.elmoussaoui@gmail.com)
-Version : 2.1
-Website : https://github.com/bil-elmoussaoui/nautilus-folder-icons
+Version : 3.0.1
+Website : https://github.com/bilelmoussaoui/nautilus-folder-icons
 Licence : GPL-3.0
 nautilus-folder-icons is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as published
@@ -74,9 +74,11 @@ class FileManagerFolderIcons(GObject.GObject, FileManager.MenuProvider):
         folders = []
         for file_ in files:
             if not file_.is_directory() or file_.get_uri_scheme() != "file":
-                return False
+                pass
             folder = uriparse(file_)
             folders.append(folder)
+        if not folders:
+            return
 
         top_item = FileManager.MenuItem(name='@FILE_MANAGER@Python::folder-icons',
                                     label=_('Folder Icon'),
