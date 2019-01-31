@@ -86,7 +86,7 @@ def get_default_icon(directory):
         icon_name = get_attribute_value(ginfo, attribute)
         if icon_name:
             return icon_name
-    return "folder"
+    return "inode-directory"
 
 
 def restore_default_icon(folder):

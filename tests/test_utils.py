@@ -53,13 +53,13 @@ class TestUtils(unittest.TestCase):
         # Create a simple dir
         test_dir = path.join(HOME, NamedTemporaryFile().name)
         makedirs(test_dir)
-        self.assertEqual(get_default_icon(test_dir), "folder")
+        self.assertEqual(get_default_icon(test_dir), "inode-directory")
         rmdir(test_dir)
 
     def test_set_default_icon(self):
         test_dir = path.join(HOME, NamedTemporaryFile().name)
         makedirs(test_dir)
-        self.assertEqual(get_default_icon(test_dir), "folder")
+        self.assertEqual(get_default_icon(test_dir), "inode-directory")
         set_default_icon(test_dir, "folder-videos")
         self.assertEqual(get_default_icon(test_dir), "folder-videos")
         rmdir(test_dir)
@@ -67,11 +67,11 @@ class TestUtils(unittest.TestCase):
     def test_restore_default_icon(self):
         test_dir = path.join(HOME, NamedTemporaryFile().name)
         makedirs(test_dir)
-        self.assertEqual(get_default_icon(test_dir), "folder")
+        self.assertEqual(get_default_icon(test_dir), "inode-directory")
         set_default_icon(test_dir, "folder-videos")
         self.assertEqual(get_default_icon(test_dir), "folder-videos")
         restore_default_icon(test_dir)
-        self.assertEqual(get_default_icon(test_dir), "folder")
+        self.assertEqual(get_default_icon(test_dir), "inode-directory")
         rmdir(test_dir)
 
 if __name__ == "__main__":
