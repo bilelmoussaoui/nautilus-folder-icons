@@ -1,13 +1,13 @@
 # nautilus-folder-icons
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/BilalELMoussaoui) [![CircleCI](https://circleci.com/gh/bilelmoussaoui/nautilus-folder-icons/tree/master.svg?style=shield)](https://circleci.com/gh/bil-elmoussaoui/nautilus-folder-icons/tree/master)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/BilalELMoussaoui) [![CircleCI](https://circleci.com/gh/bilelmoussaoui/nautilus-folder-icons/tree/master.svg?style=shield)](https://circleci.com/gh/bilelmoussaoui/nautilus-folder-icons/tree/master)
 
 Nautilus/Nemo extension that makes changing folders icons easy!
 
 
 ## Screenshots
 
-<div align="center"><img src="screenshots/screenshot1.png" alt="Preview" /></div>
+<div align="center"><img src="data/screenshots/screenshot1.png" alt="Preview" /></div>
 
 ## Shortcuts
 
@@ -54,7 +54,7 @@ yay -S nautilus-folder-icons
 2. Clone the repository
 
 ```bash
-git clone https://github.com/bil-elmoussaoui/nautilus-folder-icons
+git clone https://github.com/bilelmoussaoui/nautilus-folder-icons
 ```
 
 3. Build it!
