@@ -24,7 +24,7 @@ Nautilus/Nemo extension that makes changing folders icons easy!
 #### For Nautilus
 
 - `nautilus-python`:
-  - Arch Linux and Arch-derived distros: `python2-nautilus` or `python3-nautilus`
+  - Arch Linux and Arch-derived distros: `python2-nautilus` or `python-nautilus`
 
 #### For Nemo
 
