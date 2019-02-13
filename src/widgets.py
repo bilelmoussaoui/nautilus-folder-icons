@@ -60,8 +60,8 @@ class FolderIconChooser(Gtk.Window, GObject.GObject, Thread):
         FolderIcon Chooser Class
     """
     __gsignals__ = {
-        'selected': (GObject.SIGNAL_RUN_FIRST, None, (str, )),
-        'loaded': (GObject.SIGNAL_RUN_FIRST, None, ()),
+        'selected': (GObject.SignalFlags.RUN_FIRST, None, (str, )),
+        'loaded': (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     def __init__(self, folders):
