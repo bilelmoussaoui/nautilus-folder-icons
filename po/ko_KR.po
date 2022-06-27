@@ -1,0 +1,55 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the com.github.bilelmoussaoui.nautilus-folder-icons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: com.github.bilelmoussaoui.nautilus-folder-icons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-05 11:54+0200\n"
+"PO-Revision-Date: 2022-06-27 18:00+0900\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in:8
+msgid "Nautilus Folder Icons"
+msgstr "노틸러스 폴더 아이콘"
+
+#: data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in:9
+msgid "Nautilus extension to change folders icons"
+msgstr "폴더 아이콘을 변경하는 노틸러스 확장"
+
+#: data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in:11
+msgid ""
+"A Nautilus extension that makes it easier for you to change the folder "
+"colors, or replace the icons with images."
+msgstr ""
+"폴더 아이콘을 더 쉽게 바꾸거나 이미지로 대체할 수 있는 노틸러스 확장입"
+"니다."
+
+#: data/com.github.bilelmoussaoui.nautilus-folder-icons.metainfo.xml.in:18
+msgid "Bilal Elmoussaoui"
+msgstr "Bilal Elmoussaoui"
+
+#: src/icons_select.py:131
+msgid "Icon Chooser"
+msgstr "아이콘 선택"
+
+#: src/icons_select.py:155
+msgid "Cancel"
+msgstr "취소"
+
+#: src/folder-icons.py.in:82
+msgid "Folder Icon"
+msgstr "폴더 아이콘"
+
+#: src/folder-icons.py.in:83
+msgid "Change folder icon"
+msgstr "폴더 아이콘 바꾸기"
